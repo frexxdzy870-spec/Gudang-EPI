@@ -82,7 +82,7 @@ else:
                 if mode == "Barang Baru":
                     nama = st.text_input("Nama Barang").upper()
                     kat = st.selectbox("Kategori", ["BAR", "KITCHEN"])
-                    sat = st.selectbox("Satuan", ["pcs", "kg", "box", "gram"])
+                    sat = st.selectbox("Satuan", ["pcs", "kg", "box"])
                 else:
                     nama = st.selectbox("Pilih Barang", df_s['Barang'].unique()) if not df_s.empty else None
                     if nama:
