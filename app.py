@@ -1,13 +1,12 @@
 import streamlit as st
 import pandas as pd
-import pandas as pd
 import os
 from datetime import datetime
 import base64
 import urllib.parse
 
 # Konfigurasi Halaman
-st.set_page_config(page_title="Gudang Epidemi", page_icon="", layout="centered")
+st.set_page_config(page_title="Gudang Coffeeshop", page_icon="☕", layout="centered")
 
 # --- DATABASE FILES ---
 DB_RIWAYAT = "riwayat_transaksi.csv"
@@ -42,13 +41,13 @@ def display_centered_logo(file_path, width=80):
         st.markdown(f'<div style="display: flex; justify-content: center; margin-bottom: 10px;"><img src="data:image/jpeg;base64,{data}" width="{width}"></div>', unsafe_allow_html=True)
     except: pass
 
-# --- LOGIN ---
+# --- LOGIN LOGIC ---
 if 'logged_in' not in st.session_state:
     st.session_state.update({'logged_in': False, 'role': None})
 
 if not st.session_state['logged_in']:
     display_centered_logo(LOGO_FILE)
-    st.markdown("<h3 style='text-align: center;'>Login Sistem</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>Login Sistem Gudang</h3>", unsafe_allow_html=True)
     role = st.selectbox("Siapa Anda?", ["Staff Shift 1", "Staff Shift 2", "Owner"])
     pw = st.text_input(f"Password {role}", type="password")
     if st.button("Masuk"):
@@ -69,99 +68,98 @@ else:
 
     # Navigasi Tab
     if st.session_state['role'] == "Owner":
-        tabs = st.tabs(["📊 Stok", "📜 Riwayat", "📱 Laporan WA"])
+        tabs = st.tabs(["📊 Stok", "📜 Riwayat", "📱 Laporan Grup"])
         t_stok, t_riwayat, t_wa = tabs
     else:
-        tabs = st.tabs(["➕ Masuk", "➖ Keluar", "📊 Stok", "📜 Riwayat", "📱 Laporan WA"])
+        tabs = st.tabs(["➕ Masuk", "➖ Keluar", "📊 Stok", "📜 Riwayat", "📱 Laporan Grup"])
         t_in, t_out, t_stok, t_riwayat, t_wa = tabs
 
     # --- TAB MASUK ---
     if st.session_state['role'] != "Owner":
         with t_in:
-            mode = st.radio("Tipe:", ["Barang Baru", "Update Stok"], horizontal=True)
-            with st.form("in"):
+            mode = st.radio("Tipe Input:", ["Barang Baru", "Tambah Stok Lama"], horizontal=True)
+            with st.form("in", clear_on_submit=True):
                 if mode == "Barang Baru":
                     nama = st.text_input("Nama Barang").upper()
-                    # KATEGORI DIUBAH MENJADI 2 SAJA
                     kat = st.selectbox("Kategori", ["BAR", "KITCHEN"])
-                    sat = st.selectbox("Satuan", ["pcs", "kg", "box"])
+                    sat = st.selectbox("Satuan", ["pcs", "kg", "box", "gram"])
                 else:
                     if not df_s.empty:
                         nama = st.selectbox("Pilih Barang", df_s['Barang'].unique())
                         kat = df_s[df_s['Barang'] == nama]['Kategori'].values[0]
                         sat = df_s[df_s['Barang'] == nama]['Satuan'].values[0]
-                        st.info(f"Kat: {kat} | Sat: {sat}")
+                        st.info(f"Kategori: {kat} | Satuan: {sat}")
                     else: nama = None
-                jml = st.number_input("Jumlah", min_value=1, step=1)
-                if st.form_submit_button("Simpan"):
+                jml = st.number_input("Jumlah Masuk", min_value=1, step=1)
+                if st.form_submit_button("Simpan Stok"):
                     if nama:
-                        new_id = str(int(datetime.now().timestamp()))
-                        new_r = {"ID": new_id, "Waktu": datetime.now().strftime("%d/%m/%Y %H:%M"), "User": st.session_state['role'], "Jenis": "MASUK", "Kategori": kat, "Barang": nama, "Jumlah": int(jml), "Satuan": sat}
+                        new_r = {"ID": str(int(datetime.now().timestamp())), "Waktu": datetime.now().strftime("%d/%m/%Y %H:%M"), "User": st.session_state['role'], "Jenis": "MASUK", "Kategori": kat, "Barang": nama, "Jumlah": int(jml), "Satuan": sat}
                         df_r = pd.concat([df_r, pd.DataFrame([new_r])], ignore_index=True)
-                        if nama in df_s['Barang'].values: df_s.loc[df_s['Barang'] == nama, 'Sisa Stok'] += int(jml)
-                        else: df_s = pd.concat([df_s, pd.DataFrame([{"Kategori": kat, "Barang": nama, "Satuan": sat, "Sisa Stok": int(jml)}])], ignore_index=True)
-                        save_all(df_r, df_s); st.rerun()
+                        if nama in df_s['Barang'].values:
+                            df_s.loc[df_s['Barang'] == nama, 'Sisa Stok'] += int(jml)
+                        else:
+                            df_s = pd.concat([df_s, pd.DataFrame([{"Kategori": kat, "Barang": nama, "Satuan": sat, "Sisa Stok": int(jml)}])], ignore_index=True)
+                        save_all(df_r, df_s); st.success("Data berhasil disimpan!"); st.rerun()
 
-    # --- TAB KELUAR ---
-    if st.session_state['role'] != "Owner":
         with t_out:
             if not df_s.empty:
-                with st.form("out"):
+                with st.form("out", clear_on_submit=True):
                     nama_o = st.selectbox("Barang Keluar", df_s['Barang'].unique())
-                    r = df_s[df_s['Barang'] == nama_o].iloc[0]
-                    st.write(f"Kategori: {r['Kategori']} | Tersedia: {r['Sisa Stok']} {r['Satuan']}")
-                    jml_o = st.number_input("Jumlah", min_value=1, max_value=int(r['Sisa Stok']), step=1)
-                    if st.form_submit_button("Keluar"):
-                        new_id = str(int(datetime.now().timestamp()) + 1)
-                        new_r = {"ID": new_id, "Waktu": datetime.now().strftime("%d/%m/%Y %H:%M"), "User": st.session_state['role'], "Jenis": "KELUAR", "Kategori": r['Kategori'], "Barang": nama_o, "Jumlah": int(jml_o), "Satuan": r['Satuan']}
+                    row_s = df_s[df_s['Barang'] == nama_o].iloc[0]
+                    st.write(f"Tersedia: {row_s['Sisa Stok']} {row_s['Satuan']}")
+                    jml_o = st.number_input("Jumlah Keluar", min_value=1, max_value=int(row_s['Sisa Stok']), step=1)
+                    if st.form_submit_button("Keluarkan Barang"):
+                        new_r = {"ID": str(int(datetime.now().timestamp()) + 1), "Waktu": datetime.now().strftime("%d/%m/%Y %H:%M"), "User": st.session_state['role'], "Jenis": "KELUAR", "Kategori": row_s['Kategori'], "Barang": nama_o, "Jumlah": int(jml_o), "Satuan": row_s['Satuan']}
                         df_r = pd.concat([df_r, pd.DataFrame([new_r])], ignore_index=True)
-                        df_s.loc[df_s['Barang'] == nama_o, 'Sisa Stok'] -= int(jml_o); save_all(df_r, df_s); st.rerun()
+                        df_s.loc[df_s['Barang'] == nama_o, 'Sisa Stok'] -= int(jml_o)
+                        save_all(df_r, df_s); st.success("Barang keluar dicatat!"); st.rerun()
+            else: st.info("Stok masih kosong.")
 
-    # --- TAB STOK (Fitur Hapus Produk) ---
+    # --- TAB STOK ---
     with t_stok:
-        st.subheader("Persediaan Saat Ini")
+        st.subheader("Persediaan Barang Saat Ini")
         st.dataframe(df_s.sort_values("Kategori"), use_container_width=True, hide_index=True)
-        
         if st.session_state['role'] != "Owner" and not df_s.empty:
-            with st.expander("Hapus Produk"):
+            with st.expander("🗑️ Hapus Kesalahan Nama Produk"):
                 prod_del = st.selectbox("Pilih Produk:", ["-- Pilih --"] + list(df_s['Barang'].unique()))
-                if prod_del != "-- Pilih --" and st.button(f"Konfirmasi Hapus {prod_del}"):
+                if prod_del != "-- Pilih --" and st.button(f"Hapus {prod_del}"):
                     df_s = df_s[df_s['Barang'] != prod_del]
-                    save_all(df_r, df_s)
-                    st.success(f"Produk {prod_del} dihapus dari daftar!")
-                    st.rerun()
+                    save_all(df_r, df_s); st.rerun()
 
-    # --- TAB RIWAYAT (Fitur Hapus Catatan) ---
+    # --- TAB RIWAYAT ---
     with t_riwayat:
         st.subheader("Log Transaksi")
         if not df_r.empty:
             st.dataframe(df_r.drop(columns=["ID", "Tgl_Murni"]).sort_index(ascending=False), use_container_width=True, hide_index=True)
-            
             if st.session_state['role'] != "Owner":
-                with st.expander("Hapus Catatan Riwayat"):
+                with st.expander("🗑️ Hapus Catatan Riwayat"):
                     r_tail = df_r.tail(15).iloc[::-1]
                     pilih_r = st.selectbox("Pilih baris riwayat:", ["-- Pilih --"] + [f"{row['Waktu']} | {row['Barang']} ({row['Jumlah']})" for _, row in r_tail.iterrows()])
                     if pilih_r != "-- Pilih --":
                         idx_r = [f"{row['Waktu']} | {row['Barang']} ({row['Jumlah']})" for _, row in r_tail.iterrows()].index(pilih_r)
                         target_id = r_tail.iloc[idx_r]['ID']
-                        if st.button("Hapus Baris Riwayat Ini"):
+                        if st.button("Hapus Baris Ini"):
                             df_r = df_r[df_r['ID'] != target_id]
-                            save_all(df_r, df_s)
-                            st.success("Catatan riwayat dihapus!")
-                            st.rerun()
+                            save_all(df_r, df_s); st.rerun()
 
-    # --- TAB LAPORAN WA ---
+    # --- TAB LAPORAN GRUP ---
     with t_wa:
-        st.subheader("📱 Laporan WA")
-        no_wa = st.text_input("Nomor WA Owner", "628")
-        shift_l = st.selectbox("Shift", ["Staff Shift 1", "Staff Shift 2"])
-        if st.button("Kirim Laporan"):
+        st.subheader("📱 Laporan Grup WhatsApp")
+        link_grup = st.text_input("Link Undangan Grup", "https://chat.whatsapp.com/...")
+        shift_l = st.selectbox("Pilih Shift", ["Staff Shift 1", "Staff Shift 2"])
+        if st.button("Generate Laporan"):
             tgl_now = datetime.now().strftime("%Y-%m-%d")
             mask = (df_r['Tgl_Murni'] == tgl_now) & (df_r['User'] == shift_l)
             df_h = df_r[mask]
             if not df_h.empty:
-                pesan = f"*LAPORAN {shift_l}*\nTgl: {datetime.now().strftime('%d/%m/%Y')}\n\n"
-                pesan += "*MASUK:*\n" + "\n".join([f"- {r['Barang']}: {r['Jumlah']} {r['Satuan']}" for _, r in df_h[df_h['Jenis']=='MASUK'].iterrows()])
-                pesan += "\n\n*KELUAR:*\n" + "\n".join([f"- {r['Barang']}: {r['Jumlah']} {r['Satuan']}" for _, r in df_h[df_h['Jenis']=='KELUAR'].iterrows()])
-                st.markdown(f'<a href="https://wa.me/{no_wa}?text={urllib.parse.quote(pesan)}" target="_blank">KLIK KIRIM WA</a>', unsafe_allow_html=True)
-            else: st.warning("Data kosong.")
+                pesan = f"*LAPORAN GUDANG - {shift_l.upper()}*\nTgl: {datetime.now().strftime('%d/%m/%Y')}\n\n"
+                m = df_h[df_h['Jenis']=='MASUK']
+                if not m.empty:
+                    pesan += "*[MASUK]*\n" + "\n".join([f"• {r['Barang']}: {r['Jumlah']} {r['Satuan']}" for _, r in m.iterrows()]) + "\n\n"
+                k = df_h[df_h['Jenis']=='KELUAR']
+                if not k.empty:
+                    pesan += "*[KELUAR]*\n" + "\n".join([f"• {r['Barang']}: {r['Jumlah']} {r['Satuan']}" for _, r in k.iterrows()])
+                st.text_area("Salin Laporan Ini:", pesan, height=200)
+                if "chat.whatsapp.com" in link_grup:
+                    st.markdown(f'<a href="{link_grup}" target="_blank"><div style="text-align: center; padding: 10px; background-color: #25D366; color: white; border-radius: 8px; font-weight: bold;">BUKA GRUP WA</div></a>', unsafe_allow_html=True)
+            else: st.warning("Belum ada data transaksi shift ini.")
