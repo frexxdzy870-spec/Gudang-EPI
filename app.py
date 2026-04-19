@@ -9,7 +9,7 @@ import base64
 st.set_page_config(page_title="Gudang Epidemi", page_icon="", layout="centered")
 
 # URL Web App GSheets kamu
-URL_WEB_APP = "https://script.google.com/macros/s/AKfycbzBpJCmQ2ErCu4TsDQ3BUujKOwCvdHxWmU8ZOqhXAu-5_1nYnQU89QxmY0Ckr5UY4-K-A/exec"
+URL_WEB_APP = "https://script.google.com/macros/s/AKfycby9BnSkIzUjvZz-rSmbuTVASvFo0x40OADSL29EgJOxIdebd4jseqqFyjB92HKwKx2HmA/exec"
 
 # HIDE WATERMARK
 hide_st_style = """
