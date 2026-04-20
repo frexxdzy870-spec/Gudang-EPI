@@ -36,7 +36,7 @@ st.markdown("""
 URL_WEB_APP = "https://script.google.com/macros/s/AKfycbzBpJCmQ2ErCu4TsDQ3BUujKOwCvdHxWmU8ZOqhXAu-5_1nYnQU89QxmY0Ckr5UY4-K-A/exec"
 
 # Ambil data dari GitHub untuk Logo
-LOGO_URL = "https://raw.githubusercontent.com/username/repo/main/logo.png"
+LOGO_URL = "458630371_496384856460695_7166325097110089328_n.jpg"
 
 def fetch_data():
     try:
