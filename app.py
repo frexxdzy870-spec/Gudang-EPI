@@ -4,51 +4,60 @@ import pandas as pd
 from datetime import datetime
 import urllib.parse
 
-# 1. CSS MONOCHROME FIX - KONTRAS TINGGI
+# 1. CSS MONOCHROME - FIX KONTRAS INPUT
 st.set_page_config(page_title="Gudang Sahaja", layout="centered")
 
 st.markdown("""
     <style>
+    /* Background Utama Putih */
     .stApp { background-color: #FFFFFF !important; }
     
-    /* Semua Teks Label & Judul */
+    /* Judul & Label Teks Hitam */
     h1, h2, h3, p, span, label, [data-testid="stWidgetLabel"] {
         color: #000000 !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
     }
 
-    /* Input & Password Box */
-    input, [data-baseweb="select"] > div, [data-baseweb="input"] > div, textarea {
-        background-color: #FAFAFA !important;
+    /* KOTAK INPUT (NAMA, JUMLAH, PASSWORD) */
+    /* Gue bikin background PUTIH biar teks HITAM-nya kelihatan jelas pas diketik */
+    input, textarea, [data-baseweb="input"] > div {
+        background-color: #FFFFFF !important; 
         color: #000000 !important;
         border: 1px solid #000000 !important; 
         border-radius: 4px !important;
+        -webkit-text-fill-color: #000000 !important; /* Paksa teks input tetep hitam */
     }
 
-    /* FIX TOMBOL: Background ITEM, Tulisan PUTIH (Biar Gak Buta) */
-    .stButton>button {
-        background-color: #000000 !important;
-        color: #FFFFFF !important; /* Paksa Putih */
+    /* DROPDOWN (SELECTBOX) */
+    div[data-baseweb="select"] > div {
+        background-color: #FFFFFF !important;
         border: 1px solid #000000 !important;
-        font-weight: bold !important;
-        width: 100% !important;
-        height: 3em !important;
-        border-radius: 4px !important;
     }
     
-    /* Efek pas tombol dipencet */
-    .stButton>button:active, .stButton>button:focus, .stButton>button:hover {
-        background-color: #333333 !important;
+    /* Teks di dalem Dropdown & List Opsi */
+    div[data-baseweb="select"] *, div[role="listbox"] * {
+        color: #000000 !important;
+    }
+
+    /* TOMBOL HITAM - TEKS PUTIH (Sudah di-brute force) */
+    .stButton>button {
+        background-color: #000000 !important;
+        border: none !important;
+        border-radius: 4px !important;
+        height: 3.5em !important;
+        width: 100% !important;
+    }
+    .stButton>button p, .stButton>button span, .stButton>button div {
         color: #FFFFFF !important;
+        font-weight: bold !important;
     }
 
     header, footer { visibility: hidden; }
     </style>
     """, unsafe_allow_html=True)
 
-# URL LOGO (Pastiin link RAW GitHub lu bener)
-LOGO_URL = "https://raw.githubusercontent.com/username/repo/main/logo.png"
 URL_WEB_APP = "https://script.google.com/macros/s/AKfycbzBpJCmQ2ErCu4TsDQ3BUujKOwCvdHxWmU8ZOqhXAu-5_1nYnQU89QxmY0Ckr5UY4-K-A/exec"
+LOGO_URL = "https://raw.githubusercontent.com/username/repo/main/logo.png"
 
 def fetch_data_silent():
     try:
@@ -63,22 +72,15 @@ def fetch_data_silent():
 if 'logged_in' not in st.session_state:
     st.session_state.update({'logged_in': False, 'role': None, 'report': ""})
 
-# --- HALAMAN LOGIN ---
+# --- LOGIN ---
 if not st.session_state['logged_in']:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        # Cek Logo, kalau kaga ada jangan ngerusak tampilan
-        if "raw.githubusercontent" in LOGO_URL:
-            try: st.image(LOGO_URL, width=120)
-            except: st.markdown("<h2 style='text-align:center;'>📦</h2>", unsafe_allow_html=True)
-        else:
-            st.markdown("<h2 style='text-align:center;'>📦</h2>", unsafe_allow_html=True)
-        
-        st.markdown("<h3 style='text-align: center;'>LOGIN</h3>", unsafe_allow_html=True)
-        role = st.selectbox("Role:", ["Staff Shift 1", "Staff Shift 2", "Owner"])
+        st.markdown("<h2 style='text-align:center;'>📦</h2>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>LOGIN GUDANG</h3>", unsafe_allow_html=True)
+        role = st.selectbox("Akses:", ["Staff Shift 1", "Staff Shift 2", "Owner"])
         pw = st.text_input("Password:", type="password")
-        # Tombol MASUK sekarang tulisannya PUTIH
-        if st.button("MASUK SISTEM"):
+        if st.button("MASUK SEKARANG"):
             if (role == "Owner" and pw == "owner123") or (role.startswith("Staff") and pw == "staff123"):
                 st.session_state.update({'logged_in': True, 'role': role})
                 st.rerun()
@@ -86,24 +88,24 @@ if not st.session_state['logged_in']:
 
 # --- HALAMAN UTAMA ---
 else:
-    st.markdown(f"### {st.session_state.role} | GUDANG")
+    st.markdown(f"### {st.session_state.role}")
     df_stok = fetch_data_silent()
     
+    # TABS
     if st.session_state.role == "Owner":
         tabs = st.tabs(["📊 DATA", "➕ MASUK", "➖ KELUAR", "🚪 LOGOUT"])
     else:
-        tabs = st.tabs(["➕ MASUK", "➖ KELUAR", "📱 LAPORAN", "🚪 LOGOUT"])
+        tabs = st.tabs(["➕ MASUK", "➖ KELUAR", "📱 WA", "🚪 LOGOUT"])
 
     for i, tab in enumerate(tabs):
-        # Penamaan tab dinamis biar gak error
-        current_labels = ["📊 DATA", "➕ MASUK", "➖ KELUAR", "🚪 LOGOUT"] if st.session_state.role == "Owner" else ["➕ MASUK", "➖ KELUAR", "📱 LAPORAN", "🚪 LOGOUT"]
-        t_name = current_labels[i]
+        t_labels = ["📊 DATA", "➕ MASUK", "➖ KELUAR", "📱 WA", "🚪 LOGOUT"] if st.session_state.role == "Owner" else ["➕ MASUK", "➖ KELUAR", "📱 WA", "🚪 LOGOUT"]
+        t_name = t_labels[i]
         
         with tab:
             if "DATA" in t_name:
                 if not df_stok.empty: st.dataframe(df_stok, use_container_width=True, hide_index=True)
-                else: st.info("Gagal muat data. Coba Refresh.")
-                if st.button("REFRESH"): st.rerun()
+                else: st.info("Gagal muat data.")
+                if st.button("REFRESH DATA"): st.rerun()
 
             elif "MASUK" in t_name:
                 with st.form("in", clear_on_submit=True):
@@ -122,28 +124,28 @@ else:
                         p = {"id": str(int(datetime.now().timestamp())), "waktu": datetime.now().strftime("%d/%m/%Y %H:%M"), "user": st.session_state.role, "jenis": "MASUK", "kategori": kat, "barang": nama, "jumlah": int(jml), "satuan": sat}
                         requests.post(URL_WEB_APP, json=p)
                         st.session_state.report += f"• {nama}: +{jml} {sat}\n"
-                        st.success("Sip!")
+                        st.success("Tersimpan!")
 
             elif "KELUAR" in t_name:
                 if not df_stok.empty and "Barang" in df_stok.columns:
                     with st.form("out", clear_on_submit=True):
-                        n_o = st.selectbox("Barang:", df_stok['Barang'].unique())
+                        n_o = st.selectbox("Barang Keluar:", df_stok['Barang'].unique())
                         m_o = df_stok[df_stok['Barang'] == n_o].iloc[0]
-                        j_o = st.number_input("Jumlah:", min_value=1)
-                        if st.form_submit_button("KELUARKAN"):
+                        j_o = st.number_input(f"Jumlah (Stok: {m_o['Sisa Stok']}):", min_value=1)
+                        if st.form_submit_button("CATAT KELUAR"):
                             p = {"id": str(int(datetime.now().timestamp())+1), "waktu": datetime.now().strftime("%d/%m/%Y %H:%M"), "user": st.session_state.role, "jenis": "KELUAR", "kategori": m_o['Kategori'], "barang": n_o, "jumlah": int(j_o), "satuan": m_o['Satuan']}
                             requests.post(URL_WEB_APP, json=p)
                             st.session_state.report += f"• {n_o}: -{j_o} {m_o['Satuan']}\n"
-                            st.success("Tercatat!")
+                            st.success("Berhasil!")
                 else: st.warning("Data belum sinkron.")
 
-            elif "LAPORAN" in t_name:
+            elif "WA" in t_name:
                 if st.session_state.report:
                     msg = f"*LAPORAN GUDANG*\nUser: {st.session_state.role}\n---\n{st.session_state.report}"
                     st.text_area("Draft:", msg, height=150)
                     url = f"https://wa.me/?text={urllib.parse.quote(msg)}"
                     st.markdown(f'<a href="{url}" target="_blank" style="text-decoration:none;"><div style="background-color:#000000;color:white;padding:15px;border-radius:4px;text-align:center;font-weight:bold;">🚀 KIRIM WA</div></a>', unsafe_allow_html=True)
-                else: st.info("Belum ada data.")
+                else: st.info("Belum ada transaksi.")
 
             elif "LOGOUT" in t_name:
                 if st.button("KELUAR"):
