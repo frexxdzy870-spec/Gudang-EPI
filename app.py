@@ -34,7 +34,7 @@ st.markdown("""
 
 URL_WEB_APP = "https://script.google.com/macros/s/AKfycbzBpJCmQ2ErCu4TsDQ3BUujKOwCvdHxWmU8ZOqhXAu-5_1nYnQU89QxmY0Ckr5UY4-K-A/exec"
 # GANTI LINK DI BAWAH DENGAN LINK RAW GITHUB LU
-LOGO_URL = "https://raw.githubusercontent.com/MuhammadWidyanFerdiansyah/repo/main/logo.png"
+LOGO_URL = "https://raw.githubusercontent.com/frexxdzy870-spec/Gudang-EPI/blob/main/458630371_496384856460695_7166325097110089328_n.jpg?raw=true"
 
 def fetch_data():
     try:
