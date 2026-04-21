@@ -26,7 +26,39 @@ st.markdown("""
         color: #000000 !important;
     }
 
-    /* 2. Navigasi TABS - Gradasi Transparan */
+    /* 2. SIDEBAR GRADASI & LOGO */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #000000 0%, #222222 100%) !important;
+        border-right: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Bikin teks di sidebar (kecuali tombol) tetep putih biar kelihatan */
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+        color: #FFFFFF !important;
+    }
+
+    /* Logo Center di Sidebar */
+    [data-testid="stSidebar"] [data-testid="stImage"] {
+        filter: drop-shadow(0px 0px 10px rgba(255,255,255,0.2));
+        margin-bottom: 20px;
+    }
+
+    /* 3. TOMBOL LOGOUT (SIDEBAR) */
+    [data-testid="stSidebar"] .stButton>button {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #FFFFFF !important; /* Teks Putih */
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    [data-testid="stSidebar"] .stButton>button:hover {
+        background: rgba(255, 0, 0, 0.6) !important; /* Merah transparan pas hover biar dapet feel "exit" */
+        border-color: #FF4B4B !important;
+    }
+
+    /* 4. TABS NAVIGASI - Gradasi Transparan */
     .stTabs [data-baseweb="tab-list"] {
         gap: 10px;
         background-color: transparent;
@@ -46,33 +78,24 @@ st.markdown("""
         box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
     }
 
-    /* 3. KOTAK INPUT (NAMA, JUMLAH, KATEGORI, SATUAN) */
-    /* Menghapus warna hitam di semua input box */
+    /* 5. KOTAK INPUT (NAMA, JUMLAH, KATEGORI, SATUAN) */
     .stTextInput>div>div>input, 
     .stSelectbox>div>div, 
     .stNumberInput>div>div>input,
     .stTextArea>div>div>textarea {
-        background-color: transparent !important; /* Putih/Transparan */
-        color: #000000 !important; /* Teks Hitam Pekat */
-        border: 1.5px solid #EEEEEE !important; /* Border halus */
+        background-color: transparent !important;
+        color: #000000 !important;
+        border: 1.5px solid #EEEEEE !important;
         border-radius: 10px !important;
     }
 
-    /* Efek pas kotak diklik (Focus) */
-    .stTextInput>div>div>input:focus, 
-    .stSelectbox>div>div:focus-within,
-    .stNumberInput>div>div>input:focus {
-        border-color: #000000 !important; /* Border jadi hitam pas ngetik */
-        box-shadow: none !important;
-    }
-
-    /* Label di atas kotak */
+    /* Label & Teks Hitam */
     label, [data-testid="stMarkdownContainer"] p {
         color: #000000 !important;
         font-weight: 600 !important;
     }
 
-    /* 4. Tombol Submit */
+    /* 6. Tombol Submit (Main) */
     .stButton>button {
         width: 100%;
         background: linear-gradient(90deg, #000000 0%, #333333 100%) !important;
@@ -80,28 +103,15 @@ st.markdown("""
         border-radius: 10px;
         border: none;
         height: 3.5em;
-        margin-top: 10px;
     }
 
-    /* 5. Container Form */
+    /* Container Form */
     div[data-testid="stForm"] {
         border: none;
         border-radius: 20px;
         background: #FFFFFF;
         box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.05);
         padding: 30px;
-    }
-
-    /* Perbaikan Icon dropdown dan tombol +/- number input biar hitam */
-    [data-testid="stMarkdownContainer"] svg, 
-    .stNumberInput button {
-        fill: #000000 !important;
-        color: #000000 !important;
-    }
-    
-    /* Sidebar Logout */
-    [data-testid="stSidebar"] {
-        background-color: #FFFFFF;
     }
     </style>
 """, unsafe_allow_html=True)
