@@ -20,86 +20,88 @@ st.set_page_config(page_title="THANKS.EPIDEMi!", layout="centered")
 
 st.markdown("""
     <style>
-    /* 1. Background & Dasar */
+    /* 1. Background Utama */
     .stApp {
         background-color: #FFFFFF !important;
         color: #000000 !important;
     }
 
-    /* 2. Navigasi TABS - Efek Gradasi Transparan */
+    /* 2. Navigasi TABS - Gradasi Transparan */
     .stTabs [data-baseweb="tab-list"] {
         gap: 10px;
         background-color: transparent;
-        padding: 10px 0;
     }
 
     .stTabs [data-baseweb="tab"] {
-        background-color: rgba(0, 0, 0, 0.03); /* Hitam sangat tipis */
+        background-color: rgba(0, 0, 0, 0.03);
         color: #444444;
         border-radius: 12px;
         padding: 10px 25px;
         border: 1px solid rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
     }
 
-    /* Tampilan Pas Tab Dipilih (SINKRON & GRADASI) */
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%) !important;
         color: #FFFFFF !important;
         box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-        border: none !important;
-        transform: translateY(-2px);
     }
 
-    /* 3. Container & Form */
-    div[data-testid="stForm"] {
-        border: none;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 1);
-        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.08); /* Shadow halus */
-        padding: 30px;
-    }
-
-    /* 4. Input Fields */
-    .stTextInput>div>div>input, .stSelectbox>div>div>div, .stNumberInput>div>div>input {
-        background-color: rgba(0, 0, 0, 0.02) !important;
-        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    /* 3. KOTAK INPUT (NAMA, JUMLAH, KATEGORI, SATUAN) */
+    /* Menghapus warna hitam di semua input box */
+    .stTextInput>div>div>input, 
+    .stSelectbox>div>div, 
+    .stNumberInput>div>div>input,
+    .stTextArea>div>div>textarea {
+        background-color: transparent !important; /* Putih/Transparan */
+        color: #000000 !important; /* Teks Hitam Pekat */
+        border: 1.5px solid #EEEEEE !important; /* Border halus */
         border-radius: 10px !important;
-        color: #000000 !important;
     }
 
-    /* 5. Tombol Submit - Gradasi */
+    /* Efek pas kotak diklik (Focus) */
+    .stTextInput>div>div>input:focus, 
+    .stSelectbox>div>div:focus-within,
+    .stNumberInput>div>div>input:focus {
+        border-color: #000000 !important; /* Border jadi hitam pas ngetik */
+        box-shadow: none !important;
+    }
+
+    /* Label di atas kotak */
+    label, [data-testid="stMarkdownContainer"] p {
+        color: #000000 !important;
+        font-weight: 600 !important;
+    }
+
+    /* 4. Tombol Submit */
     .stButton>button {
         width: 100%;
         background: linear-gradient(90deg, #000000 0%, #333333 100%) !important;
         color: #FFFFFF !important;
         border-radius: 10px;
         border: none;
-        font-weight: 600;
         height: 3.5em;
-        transition: 0.3s;
+        margin-top: 10px;
     }
 
-    .stButton>button:hover {
-        opacity: 0.8;
-        box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+    /* 5. Container Form */
+    div[data-testid="stForm"] {
+        border: none;
+        border-radius: 20px;
+        background: #FFFFFF;
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.05);
+        padding: 30px;
     }
 
-    /* 6. Sidebar & Lainnya */
-    [data-testid="stSidebar"] {
-        background-color: #FAFAFA;
-    }
-    
-    h1, h2, h3, label {
+    /* Perbaikan Icon dropdown dan tombol +/- number input biar hitam */
+    [data-testid="stMarkdownContainer"] svg, 
+    .stNumberInput button {
+        fill: #000000 !important;
         color: #000000 !important;
-        font-weight: 700 !important;
     }
     
-    /* Alert/Error Box biar gak kontras banget */
-    .stAlert {
-        border-radius: 10px;
-        background-color: rgba(255, 0, 0, 0.05);
-        color: #cc0000;
+    /* Sidebar Logout */
+    [data-testid="stSidebar"] {
+        background-color: #FFFFFF;
     }
     </style>
 """, unsafe_allow_html=True)
