@@ -6,7 +6,7 @@ import urllib.parse
 
 # 1. SETUP KONEKSI (PASTIKAN URL & KEY BENER)
 SUPABASE_URL = "https://obrbnenfojqdepqzxain.supabase.co"
-SUPABASE_KEY = "ISI_ANON_KEY_LU"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9icmJuZW5mb2pxZGVwcXp4YWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDU2MDAsImV4cCI6MjA5MjIyMTYwMH0.Ef0uELb-CwYxlKpK_DggIrfX0NZDHiyEHTIcZmseyzk"
 
 @st.cache_resource
 def init_connection():
