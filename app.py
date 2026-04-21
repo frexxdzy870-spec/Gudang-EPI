@@ -5,7 +5,7 @@ from datetime import datetime
 import urllib.parse
 
 # 1. SETUP KONEKSI (PASTIKAN URL & KEY BENER)
-SUPABASE_URL = "ISI_URL_SUPABASE_LU"
+SUPABASE_URL = "https://obrbnenfojqdepqzxain.supabase.co"
 SUPABASE_KEY = "ISI_ANON_KEY_LU"
 
 @st.cache_resource
