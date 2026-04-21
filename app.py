@@ -19,13 +19,92 @@ supabase = init_connection()
 st.set_page_config(page_title="THANKS.EPIDEMi!", layout="centered")
 
 st.markdown("""
-    <style>
-    .stApp { background-color: #FFFFFF; }
-    [data-testid="stImage"] { display: block; margin-left: auto; margin-right: auto; }
-    h1, h2, h3, h4, p, label { color: #FFFFFF !important; text-align: center; }
-    .stButton>button { width: 100%; background-color: #FFFFFF !important; color: #000000 !important; font-weight: bold; border-radius: 8px; }
-    div[data-testid="stForm"] { border: 1px solid #444; border-radius: 10px; padding: 25px; background-color: #161922; }
-    </style>
+<style>
+    /* 1. Background Utama & Font */
+    .stApp {
+        background-color: #000000; /* Hitam Pekat */
+        color: #FFFFFF;
+    }
+
+    /* 2. Container Logo Biar Center Total */
+    [data-testid="stImage"] {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        filter: drop-shadow(0px 0px 5px rgba(255,255,255,0.2));
+    }
+
+    /* 3. Tipografi & Judul */
+    h1, h2, h3, h4, p, label, .stMarkdown {
+        color: #FFFFFF !important;
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* 4. Form & Input Field */
+    div[data-testid="stForm"] {
+        border: 2px solid #FFFFFF; /* Garis Putih Tegas */
+        border-radius: 15px;
+        padding: 30px;
+        background-color: #111111; /* Hitam Abu biar gak mati banget */
+    }
+
+    /* Input text, selectbox, dll */
+    .stTextInput>div>div>input, .stSelectbox>div>div>div, .stNumberInput>div>div>input {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #444 !important;
+    }
+
+    /* 5. Tombol (Inverted: Putih Tulisan Hitam) */
+    .stButton>button {
+        width: 100%;
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        border-radius: 5px;
+        border: none;
+        transition: 0.3s;
+        height: 3em;
+    }
+
+    .stButton>button:hover {
+        background-color: #CCCCCC !important; /* Abu-abu terang pas hover */
+        border: none;
+    }
+
+    /* 6. Tabs (Navigasi Atas) */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        background-color: #000000;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        background-color: #111111;
+        border-radius: 5px 5px 0px 0px;
+        color: #FFFFFF;
+        border: 1px solid #333;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+    }
+
+    /* 7. Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #111111;
+        border-right: 1px solid #333;
+    }
+
+    /* 8. Dataframe (Tabel) biar senada */
+    .stDataFrame {
+        border: 1px solid #FFFFFF;
+    }
+</style>
 """, unsafe_allow_html=True)
 
 if 'user' not in st.session_state: st.session_state.user = None
