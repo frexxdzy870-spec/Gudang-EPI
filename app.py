@@ -6,14 +6,9 @@ import urllib.parse
 # ==========================================
 # 1. SETUP & KONFIGURASI
 # ==========================================
-
-# GANTI DENGAN URL & KEY SUPABASE LU SENDIRI
-SUPABASE_URL = "https://obrbnenfojqdepqzxain.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9icmJuZW5mb2pxZGVwcXp4YWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDU2MDAsImV4cCI6MjA5MjIyMTYwMH0.Ef0uELb-CwYxlKpK_DggIrfX0NZDHiyEHTIcZmseyzk"
-
-# Link Logo 'THANKS.EPIDEMi!' (Pake link raw biar stabil)
-# Jika lu naro file logo.png di folder yang sama dengan app.py, ganti jadi "logo.png"
-LOGO_IMAGE = "https://github.com/frexxdzy870-spec/Gudang-EPI/blob/main/logo.png.jpg?raw=true"
+SUPABASE_URL = "ISI_URL_LU"
+SUPABASE_KEY = "ISI_KEY_LU"
+LOGO_URL = "https://raw.githubusercontent.com/username/repo/main/logo.png"
 
 @st.cache_resource
 def init_connection():
@@ -21,112 +16,58 @@ def init_connection():
 
 supabase = init_connection()
 
-# Pengaturan Halaman
 st.set_page_config(page_title="THANKS.EPIDEMi! Gudang", layout="centered")
 
-# CSS: PAKSA LOGO KE TENGAH TOTAL
+# CSS Buat Paksa Tampilan Dark & Rapih
 st.markdown("""
     <style>
-    /* 1. Background Utama */
     .stApp { background-color: #0E1117; }
-
-    /* 2. Container Logo Biar Center Total */
-    [data-testid="stImage"] {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    
-    .centered-container {
-        display: flex;
-        justify-content: center;
-        width: 100%;
-    }
-
-    /* 3. Teks & Label */
-    h1, h2, h3, h4, p, label { 
-        color: #FFFFFF !important; 
-        text-align: center; 
-    }
-    
-    /* 4. Input & Button */
-    .stButton>button { 
-        width: 100%; 
-        background-color: #FFFFFF !important; 
-        color: #000000 !important; 
-        font-weight: bold; 
-        height: 3.5em; 
-        border-radius: 8px;
-        margin-top: 10px;
-    }
-    
-    div[data-testid="stForm"] { 
-        border: 1px solid #444; 
-        border-radius: 10px; 
-        padding: 25px; 
-        background-color: #161922;
-    }
+    [data-testid="stImage"] { display: block; margin-left: auto; margin-right: auto; }
+    h1, h2, h3, h4, p, label { color: #FFFFFF !important; text-align: center; }
+    .stButton>button { width: 100%; background-color: #FFFFFF !important; color: #000000 !important; font-weight: bold; border-radius: 8px; }
+    div[data-testid="stForm"] { border: 1px solid #444; border-radius: 10px; padding: 25px; background-color: #161922; }
     </style>
 """, unsafe_allow_html=True)
-# ==========================================
-# 2. FUNGSI DATA (LOGIKA SOLID)
-# ==========================================
 
+# FIX ERROR: Inisialisasi session state biar gak AttributeError
+if 'user' not in st.session_state:
+    st.session_state.user = None
+if 'report_wa' not in st.session_state:
+    st.session_state.report_wa = ""
+
+# ==========================================
+# 2. LOGIKA DATA
+# ==========================================
 def get_stock_data():
-    """Ambil sisa stok saat ini dan riwayat lengkap."""
     try:
         res = supabase.table("inventory").select("*").execute()
         df = pd.DataFrame(res.data)
         if df.empty: return pd.DataFrame(), pd.DataFrame()
-        
-        # Urutkan riwayat dari yang terbaru
         df_raw = df.sort_values('waktu', ascending=False)
-        
-        # Hitung Sisa Stok per Barang (Groupby)
         summary = []
         for b in df['barang'].unique():
             b_df = df[df['barang'] == b]
             masuk = b_df[b_df['jenis'] == 'MASUK']['jumlah'].sum()
             keluar = b_df[b_df['jenis'] == 'KELUAR']['jumlah'].sum()
-            row = b_df.iloc[0] # Ambil Kategori & Satuan dari baris pertama
-            summary.append({
-                "Barang": b, 
-                "Kategori": row['kategori'], 
-                "Sisa Stok": masuk - keluar, 
-                "Satuan": row['satuan']
-            })
+            row = b_df.iloc[0]
+            summary.append({"Barang": b, "Kategori": row['kategori'], "Sisa Stok": masuk - keluar, "Satuan": row['satuan']})
         return pd.DataFrame(summary), df_raw
     except: return pd.DataFrame(), pd.DataFrame()
 
-def insert_transaction(data_dict):
-    """Insert data transaksi ke Supabase."""
-    try:
-        supabase.table("inventory").insert(data_dict).execute()
-        return True
-    except: return False
 # ==========================================
-# 3. HALAMAN LOGIN (FIX CENTER TOTAL)
+# 3. HALAMAN LOGIN (FIX CENTER)
 # ==========================================
-
-if not st.session_state.user:
-    # Buat ruang kosong di atas biar gak terlalu nempel ke bar status
+if st.session_state.user is None:
     st.write("##") 
-    
-    # PAKSA TENGAH PAKE COLUMNS
-    # Perbandingan [1, 1, 1] maksa kolom tengah bener-bener di pusat
     col1, col2, col3 = st.columns([1, 1, 1])
-    
     with col2:
         try:
-            # use_container_width=True supaya dia ngikutin lebar kolom tengah yang sempit
             st.image(LOGO_URL, use_container_width=True)
         except:
             st.markdown("<h1 style='text-align:center;'>💀</h1>", unsafe_allow_html=True)
     
-    # Paksa teks judul ke tengah lewat HTML
-    st.markdown("<h2 style='text-align: center;'>LOGIN SISTEM GUDANG</h2>", unsafe_allow_html=True)
+    st.markdown("### LOGIN SISTEM GUDANG")
     
-    # Bungkus Form biar gak terlalu lebar di layar PC
     col_a, col_b, col_c = st.columns([0.1, 0.8, 0.1])
     with col_b:
         with st.form("form_login"):
@@ -136,161 +77,21 @@ if not st.session_state.user:
                 if (role == "Owner" and pw == "owner123") or (role.startswith("Staff") and pw == "staff123"):
                     st.session_state.user = role
                     st.rerun()
-                else: 
+                else:
                     st.error("Password Salah!")
 
 # ==========================================
-# 4. SESSION STATE & LAPORAN WA
+# 4. HALAMAN UTAMA
 # ==========================================
-
-if 'user' not in st.session_state: st.session_state.user = None
-if 'report_wa' not in st.session_state: st.session_state.report_wa = ""
-
-# ==========================================
-# 5. HALAMAN LOGIN (DENGAN LOGO ATAS)
-# ==========================================
-
-if not st.session_state.user:
-    # Centering Logo
-    st.markdown('<div class="login-logo">', unsafe_allow_html=True)
-    try:
-        st.image(LOGO_IMAGE, width=180) # Sesuaikan lebar
-    except:
-        st.markdown("<h1 style='text-align:center;'>☕💀</h1>", unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    st.markdown("<h3 style='text-align:center;'>LOGIN SISTEM GUDANG</h3>", unsafe_allow_html=True)
-    
-    with st.form("form_login"):
-        role = st.selectbox("Role:", ["Staff Shift 1", "Staff Shift 2", "Owner"])
-        pw = st.text_input("Password:", type="password")
-        if st.form_submit_button("MASUK SISTEM"):
-            # PASSWORD JANGAN DIUMBAR DI SINI JIKA PRODUKSI!
-            if (role == "Owner" and pw == "owner123") or (role.startswith("Staff") and pw == "staff123"):
-                st.session_state.user = role
-                st.rerun()
-            else: st.error("Password Salah, Bjir!")
-
-# ==========================================
-# 6. HALAMAN UTAMA (DENGAN LOGO SIDEBAR)
-# ==========================================
-
 else:
-    # --- LOGO DI SIDEBAR ---
-    st.sidebar.markdown('<div class="sidebar-logo">', unsafe_allow_html=True)
-    try:
-        st.sidebar.image(LOGO_IMAGE, width=150)
-    except: pass
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
-    
+    st.sidebar.image(LOGO_URL, use_container_width=True)
     st.sidebar.markdown(f"User: **{st.session_state.user}**")
-    st.sidebar.markdown(f"EST. 2019")
+    st.sidebar.markdown("---")
     
-    # Ambil Data Terbaru
     df_summary, df_raw_history = get_stock_data()
-
-    st.markdown(f"## 📦 Gudang: {st.session_state.user}")
-
-    # --- NAVIGASI (STAFF vs OWNER) ---
-    if st.session_state.user == "Owner":
-        tab_list = ["📊 DATA", "📜 RIWAYAT", "➕ MASUK", "➖ KELUAR", "📱 WA"]
-    else:
-        tab_list = ["➕ MASUK", "➖ KELUAR", "📱 WA"]
+    tabs = st.tabs(["📊 DATA", "📜 RIWAYAT", "➕ MASUK", "➖ KELUAR", "📱 WA"]) if st.session_state.user == "Owner" else st.tabs(["➕ MASUK", "➖ KELUAR", "📱 WA"])
+    # ... (Sisa kode menu lu taruh di sini sesuai tab)
     
-    tabs = st.tabs(tab_list)
-
-    # LOOPING LOGIKA TAB
-    for i, tab in enumerate(tabs):
-        current_tab = tab_list[i]
-
-        with tab:
-            if current_tab == "📊 DATA":
-                if not df_summary.empty:
-                    st.dataframe(df_summary, use_container_width=True, hide_index=True)
-                else: st.info("Gudang kosong.")
-                if st.button("🔄 REFRESH DATA"): st.rerun()
-
-            elif current_tab == "📜 RIWAYAT":
-                if not df_raw_history.empty:
-                    # Rapihin format waktu
-                    display_raw = df_raw_history.copy()
-                    display_raw['waktu'] = pd.to_datetime(display_raw['waktu']).dt.strftime('%d/%m/%Y %H:%M')
-                    st.dataframe(display_raw[['waktu', 'barang', 'jenis', 'jumlah', 'user_input']], use_container_width=True)
-                else: st.info("Belum ada riwayat.")
-
-            elif current_tab == "➕ MASUK":
-                with st.form("form_masuk", clear_on_submit=True):
-                    st.subheader("Update Stok / Tambah Barang Baru")
-                    # Mode Input: Baru atau Update
-                    mode = st.radio("Metode:", ["Baru", "Update Stok Lama"], horizontal=True) if not df_summary.empty else "Baru"
-                    
-                    if mode == "Baru":
-                        nm = st.text_input("Ketik Nama Barang Baru:").upper().strip()
-                        kt = st.selectbox("Kategori:", ["BAR", "KITCHEN"])
-                        stn = st.selectbox("Satuan:", ["pack", "pcs", "box", "gram", "kg"])
-                    else:
-                        nm = st.selectbox("Pilih Barang:", df_summary['Barang'].unique())
-                        # Ambil info satuan/kategori
-                        info = df_summary[df_summary['Barang'] == nm].iloc[0]
-                        kt, stn = info['Kategori'], info['Satuan']
-                        st.info(f"Kategori: {kt}, Satuan: {stn}")
-                    
-                    jml = st.number_input("Jumlah Tambahan:", min_value=1)
-                    if st.form_submit_button("SIMPAN DATA MASUK"):
-                        if nm and jml > 0:
-                            data_dict = {
-                                "barang": nm, "kategori": kt, "satuan": stn, 
-                                "jumlah": jml, "jenis": "MASUK", "user_input": st.session_state.user
-                            }
-                            if insert_transaction(data_dict):
-                                st.session_state.report_wa += f"• {nm}: +{jml} {stn}\n"
-                                st.success(f"Berhasil: {nm} ditambahkan!")
-                                st.rerun()
-                        else: st.error("Isi data yang bener!")
-
-            elif current_tab == "➖ KELUAR":
-                if not df_summary.empty:
-                    with st.form("form_keluar", clear_on_submit=True):
-                        st.subheader("Catat Barang Keluar")
-                        sel_brg = st.selectbox("Cari Barang:", df_summary['Barang'].unique())
-                        
-                        # Info Sisa Stok
-                        row_info = df_summary[df_summary['Barang'] == sel_brg].iloc[0]
-                        sisa = row_info['Sisa Stok']
-                        stn_o = row_info['Satuan']
-                        
-                        st.warning(f"Sisa Stok Saat Ini: {sisa} {stn_o}")
-                        
-                        # Validasi Input (Jumlah Keluar gak boleh lebih dari sisa)
-                        max_out = int(sisa) if sisa > 0 else 1
-                        jml_o = st.number_input("Jumlah Keluar:", min_value=1, max_value=max_out)
-                        
-                        if st.form_submit_button("KONFIRMASI BARANG KELUAR"):
-                            if sisa >= jml_o > 0:
-                                # Keluar gak perlu kategori/satuan baru, pake yang lama
-                                data_dict = {
-                                    "barang": sel_brg, "jumlah": jml_o, "jenis": "KELUAR", 
-                                    "user_input": st.session_state.user, "kategori": row_info['Kategori'], "satuan": stn_o
-                                }
-                                if insert_transaction(data_dict):
-                                    st.session_state.report_wa += f"• {sel_brg}: -{jml_o} {stn_o}\n"
-                                    st.success("Tercatat Keluar!")
-                                    st.rerun()
-                            else: st.error("Stok gak cukup, bjir!")
-                else: st.error("Gudang kosong, gak ada barang keluar.")
-
-            elif current_tab == "WA":
-                st.subheader("Laporan Aktivitas ke WA")
-                if st.session_state.report_wa:
-                    msg = f"*LAPORAN GUDANG THANKS.EPIDEMi!*\nUser: {st.session_state.user}\n---\n{st.session_state.report_wa}"
-                    st.text_area("Preview Draft WA:", msg, height=150)
-                    # Encode URL WA
-                    url_wa = f"https://wa.me/?text={urllib.parse.quote(msg)}"
-                    # Button Kustom WA
-                    st.markdown(f'<a href="{url_wa}" target="_blank" style="text-decoration:none;"><div style="background-color:#25D366;color:white;padding:15px;border-radius:10px;text-align:center;font-weight:bold;">📲 KIRIM LAPORAN WA</div></a>', unsafe_allow_html=True)
-                    if st.button("Reset Laporan"): st.session_state.report_wa = ""; st.rerun()
-                else: st.info("Belum ada transaksi hari ini.")
-
     if st.sidebar.button("LOGOUT"):
         st.session_state.user = None
         st.rerun()
