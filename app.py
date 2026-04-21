@@ -8,8 +8,8 @@ import urllib.parse
 # ==========================================
 
 # GANTI DENGAN URL & KEY SUPABASE LU SENDIRI
-SUPABASE_URL = "ISI_URL_SUPABASE_LU"
-SUPABASE_KEY = "ISI_ANON_KEY_LU"
+SUPABASE_URL = "https://obrbnenfojqdepqzxain.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9icmJuZW5mb2pxZGVwcXp4YWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDU2MDAsImV4cCI6MjA5MjIyMTYwMH0.Ef0uELb-CwYxlKpK_DggIrfX0NZDHiyEHTIcZmseyzk"
 
 # Link Logo 'THANKS.EPIDEMi!' (Pake link raw biar stabil)
 # Jika lu naro file logo.png di folder yang sama dengan app.py, ganti jadi "logo.png"
