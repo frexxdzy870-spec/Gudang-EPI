@@ -5,10 +5,8 @@ from datetime import datetime
 import urllib.parse
 
 # 1. SETUP KONEKSI (GANTI DENGAN URL & KEY LU)
-SUPABASE_URL = "ISI_URL_SUPABASE_LU"
-SUPABASE_KEY = "ISI_ANON_KEY_LU"
-
-@st.cache_resource
+SUPABASE_URL = "https://obrbnenfojqdepqzxain.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9icmJuZW5mb2pxZGVwcXp4YWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDU2MDAsImV4cCI6MjA5MjIyMTYwMH0.Ef0uELb-CwYxlKpK_DggIrfX0NZDHiyEHTIcZmseyzk"
 def init_connection():
     return create_client(SUPABASE_URL, SUPABASE_KEY)
 
