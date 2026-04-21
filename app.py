@@ -20,101 +20,86 @@ st.set_page_config(page_title="THANKS.EPIDEMi!", layout="centered")
 
 st.markdown("""
     <style>
-    /* 1. Background Utama - Putih Bersih */
+    /* 1. Background & Dasar */
     .stApp {
         background-color: #FFFFFF !important;
         color: #000000 !important;
     }
 
-    /* 2. Container Logo */
-    [data-testid="stImage"] {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        padding-bottom: 20px;
-    }
-
-    /* 3. Semua Teks & Label - Hitam Dalam */
-    h1, h2, h3, h4, h5, h6, p, label, .stMarkdown, .stText {
-        color: #000000 !important;
-        text-align: center;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    /* 4. Form & Container Input - Putih dengan Border Hitam Tipis */
-    div[data-testid="stForm"] {
-        border: 1px solid #E0E0E0; /* Abu-abu sangat muda biar gak kaku */
-        border-radius: 12px;
-        padding: 30px;
-        background-color: #FFFFFF;
-        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05); /* Shadow tipis biar estetik */
-    }
-
-    /* Input Field & Selectbox */
-    .stTextInput>div>div>input, 
-    .stSelectbox>div>div>div, 
-    .stNumberInput>div>div>input {
-        background-color: #F9F9F9 !important; /* Abu-abu dikit biar beda sama background */
-        color: #000000 !important;
-        border: 1px solid #CCCCCC !important;
-        border-radius: 8px !important;
-    }
-
-    /* 5. Tombol - Hitam Pekat dengan Teks Putih (Contrast King) */
-    .stButton>button {
-        width: 100%;
-        background-color: #000000 !important;
-        color: #FFFFFF !important;
-        font-weight: 700;
-        border-radius: 8px;
-        border: none;
-        height: 3.5em;
-        transition: 0.2s;
-    }
-
-    .stButton>button:hover {
-        background-color: #333333 !important; /* Hitam pudar dikit pas hover */
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    /* 6. Tabs Navigasi */
+    /* 2. Navigasi TABS - Efek Gradasi Transparan */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: #FFFFFF;
+        gap: 10px;
+        background-color: transparent;
+        padding: 10px 0;
     }
 
     .stTabs [data-baseweb="tab"] {
-        background-color: #F0F0F0;
-        color: #666666;
-        border-radius: 8px 8px 0px 0px;
-        padding: 10px 20px;
+        background-color: rgba(0, 0, 0, 0.03); /* Hitam sangat tipis */
+        color: #444444;
+        border-radius: 12px;
+        padding: 10px 25px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
     }
 
+    /* Tampilan Pas Tab Dipilih (SINKRON & GRADASI) */
     .stTabs [aria-selected="true"] {
-        background-color: #000000 !important;
+        background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%) !important;
         color: #FFFFFF !important;
-        font-weight: bold;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        border: none !important;
+        transform: translateY(-2px);
     }
 
-    /* 7. Sidebar - Putih Bersih */
+    /* 3. Container & Form */
+    div[data-testid="stForm"] {
+        border: none;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 1);
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.08); /* Shadow halus */
+        padding: 30px;
+    }
+
+    /* 4. Input Fields */
+    .stTextInput>div>div>input, .stSelectbox>div>div>div, .stNumberInput>div>div>input {
+        background-color: rgba(0, 0, 0, 0.02) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        border-radius: 10px !important;
+        color: #000000 !important;
+    }
+
+    /* 5. Tombol Submit - Gradasi */
+    .stButton>button {
+        width: 100%;
+        background: linear-gradient(90deg, #000000 0%, #333333 100%) !important;
+        color: #FFFFFF !important;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        height: 3.5em;
+        transition: 0.3s;
+    }
+
+    .stButton>button:hover {
+        opacity: 0.8;
+        box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+    }
+
+    /* 6. Sidebar & Lainnya */
     [data-testid="stSidebar"] {
-        background-color: #FFFFFF;
-        border-right: 1px solid #EEEEEE;
+        background-color: #FAFAFA;
     }
     
-    [data-testid="stSidebar"] * {
+    h1, h2, h3, label {
         color: #000000 !important;
+        font-weight: 700 !important;
     }
-
-    /* 8. Table/Dataframe - Bersih */
-    .stDataFrame {
-        border: 1px solid #EEEEEE;
-        background-color: #FFFFFF;
-    }
-
-    /* Fix Icon & Metric */
-    [data-testid="stMetricValue"] {
-        color: #000000 !important;
+    
+    /* Alert/Error Box biar gak kontras banget */
+    .stAlert {
+        border-radius: 10px;
+        background-color: rgba(255, 0, 0, 0.05);
+        color: #cc0000;
     }
     </style>
 """, unsafe_allow_html=True)
