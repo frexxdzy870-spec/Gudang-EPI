@@ -6,8 +6,8 @@ import urllib.parse
 # ==========================================
 # 1. SETUP & KONFIGURASI
 # ==========================================
-SUPABASE_URL = "ISI_URL_LU"
-SUPABASE_KEY = "ISI_KEY_LU"
+SUPABASE_URL = "https://obrbnenfojqdepqzxain.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9icmJuZW5mb2pxZGVwcXp4YWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDU2MDAsImV4cCI6MjA5MjIyMTYwMH0.Ef0uELb-CwYxlKpK_DggIrfX0NZDHiyEHTIcZmseyzk"
 LOGO_URL = "https://raw.githubusercontent.com/username/repo/main/logo.png"
 
 @st.cache_resource
