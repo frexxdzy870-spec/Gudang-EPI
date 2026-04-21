@@ -4,9 +4,9 @@ import pandas as pd
 from datetime import datetime
 import urllib.parse
 
-# 1. SETUP KONEKSI (PASTIKAN URL & KEY BENER)
-SUPABASE_URL = "https://obrbnenfojqdepqzxain.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9icmJuZW5mb2pxZGVwcXp4YWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDU2MDAsImV4cCI6MjA5MjIyMTYwMH0.Ef0uELb-CwYxlKpK_DggIrfX0NZDHiyEHTIcZmseyzk"
+# 1. SETUP KONEKSI (GANTI DENGAN URL & KEY LU)
+SUPABASE_URL = "ISI_URL_SUPABASE_LU"
+SUPABASE_KEY = "ISI_ANON_KEY_LU"
 
 @st.cache_resource
 def init_connection():
@@ -35,22 +35,28 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 3. FUNGSI AMBIL DATA
-def get_inventory_data():
+# 3. FUNGSI DATA
+def get_all_data():
     try:
-        res = supabase.table("inventory").select("*").execute()
-        df = pd.DataFrame(res.data)
-        if df.empty: return pd.DataFrame()
-        
-        summary = []
-        for b in df['barang'].unique():
-            b_df = df[df['barang'] == b]
-            masuk = b_df[b_df['jenis'] == 'MASUK']['jumlah'].sum()
-            keluar = b_df[b_df['jenis'] == 'KELUAR']['jumlah'].sum()
-            row = b_df.iloc[0]
-            summary.append({"Barang": b, "Kategori": row['kategori'], "Sisa Stok": masuk - keluar, "Satuan": row['satuan']})
-        return pd.DataFrame(summary)
+        res = supabase.table("inventory").select("*").order("waktu", desc=True).execute()
+        return pd.DataFrame(res.data)
     except: return pd.DataFrame()
+
+def get_inventory_summary(df):
+    if df.empty: return pd.DataFrame()
+    summary = []
+    for b in df['barang'].unique():
+        b_df = df[df['barang'] == b]
+        masuk = b_df[b_df['jenis'] == 'MASUK']['jumlah'].sum()
+        keluar = b_df[b_df['jenis'] == 'KELUAR']['jumlah'].sum()
+        row = b_df.iloc[0]
+        summary.append({
+            "Barang": b, 
+            "Kategori": row['kategori'], 
+            "Sisa Stok": masuk - keluar, 
+            "Satuan": row['satuan']
+        })
+    return pd.DataFrame(summary)
 
 if 'logged_in' not in st.session_state:
     st.session_state.update({'logged_in': False, 'role': None, 'report': ""})
@@ -72,52 +78,74 @@ if not st.session_state['logged_in']:
 # --- DASHBOARD ---
 else:
     st.markdown(f"### 📋 User: {st.session_state.role}")
-    df_stok = get_inventory_data()
+    raw_df = get_all_data()
+    df_stok = get_inventory_summary(raw_df)
     
-    # Staff GAK BISA LIHAT MENU DATA
+    # Menu Filter: Owner punya tambahan tab 'RIWAYAT' dan 'DATA'
     if st.session_state.role == "Owner":
-        tabs = st.tabs(["📊 DATA", "➕ UPDATE STOK", "➖ KELUAR STOK", "📱 WA", "🚪 LOGOUT"])
+        tab_titles = ["📊 DATA STOK", "📜 RIWAYAT", "➕ UPDATE STOK", "➖ KELUAR STOK", "📱 WA", "🚪 LOGOUT"]
     else:
-        tabs = st.tabs(["➕ UPDATE STOK", "➖ KELUAR STOK", "📱 WA", "🚪 LOGOUT"])
+        tab_titles = ["➕ UPDATE STOK", "➖ KELUAR STOK", "📱 WA", "🚪 LOGOUT"]
     
-    tab_list = ["📊 DATA", "➕ UPDATE STOK", "➖ KELUAR STOK", "📱 WA", "🚪 LOGOUT"] if st.session_state.role == "Owner" else ["➕ UPDATE STOK", "➖ KELUAR STOK", "📱 WA", "🚪 LOGOUT"]
+    tabs = st.tabs(tab_titles)
 
     for i, tab in enumerate(tabs):
-        t_name = tab_list[i]
+        t_name = tab_titles[i]
         
         with tab:
-            if "DATA" in t_name:
+            if "DATA STOK" in t_name:
                 if not df_stok.empty: st.dataframe(df_stok, use_container_width=True, hide_index=True)
                 else: st.info("Gudang Kosong.")
-                if st.button("REFRESH"): st.rerun()
+                if st.button("REFRESH STOK"): st.rerun()
+
+            elif "RIWAYAT" in t_name:
+                st.markdown("#### Log Keluar Masuk Barang")
+                if not raw_df.empty:
+                    # Rapihin format waktu biar enak dibaca
+                    display_df = raw_df.copy()
+                    display_df['waktu'] = pd.to_datetime(display_df['waktu']).dt.strftime('%d/%m/%Y %H:%M')
+                    display_df = display_df.rename(columns={
+                        'waktu': 'Waktu/Jam',
+                        'user_input': 'User/Shift',
+                        'jenis': 'Status',
+                        'barang': 'Barang',
+                        'jumlah': 'Qty',
+                        'satuan': 'Satuan'
+                    })
+                    st.dataframe(display_df[['Waktu/Jam', 'Barang', 'Qty', 'Status', 'User/Shift']], use_container_width=True, hide_index=True)
+                else:
+                    st.info("Belum ada riwayat transaksi.")
+                if st.button("REFRESH RIWAYAT"): st.rerun()
 
             elif "UPDATE STOK" in t_name:
                 with st.form("form_update", clear_on_submit=True):
                     is_ex = not df_stok.empty
-                    mode = st.radio("Metode:", ["Stok Lama (Update)", "Barang Baru"], horizontal=True) if is_ex else "Barang Baru"
+                    mode = st.radio("Metode:", ["Update Stok Lama", "Input Barang Baru"], horizontal=True) if is_ex else "Input Barang Baru"
                     
-                    if mode == "Stok Lama (Update)":
+                    if mode == "Update Stok Lama":
                         nm = st.selectbox("Pilih Barang:", df_stok['Barang'].unique())
                         inf = df_stok[df_stok['Barang'] == nm].iloc[0]
                         kt, stn = inf['Kategori'], inf['Satuan']
                     else:
-                        nm = st.text_input("Nama Barang:").upper()
+                        nm = st.text_input("Nama Barang Baru:").upper()
                         kt = st.selectbox("Kategori:", ["BAR", "KITCHEN"])
-                        stn = st.selectbox("Satuan:", ["pack", "kg", "box", "pcs", "gram"])
+                        stn = st.selectbox("Satuan:", ["pack", "pcs", "box", "gram", "kg"])
                     
                     jml = st.number_input("Jumlah Tambahan:", min_value=1)
                     if st.form_submit_button("SIMPAN UPDATE"):
-                        supabase.table("inventory").insert({
-                            "user_input": st.session_state.role, "jenis": "MASUK",
-                            "kategori": kt, "barang": nm, "jumlah": int(jml), "satuan": stn
-                        }).execute()
-                        st.session_state.report += f"• {nm}: +{jml} {stn}\n"
-                        st.success("Stok Berhasil Ditambah!")
+                        if nm:
+                            supabase.table("inventory").insert({
+                                "user_input": st.session_state.role, "jenis": "MASUK",
+                                "kategori": kt, "barang": nm, "jumlah": int(jml), "satuan": stn
+                            }).execute()
+                            st.session_state.report += f"• {nm}: +{jml} {stn}\n"
+                            st.success(f"Berhasil ditambah!")
+                            st.rerun()
 
             elif "KELUAR STOK" in t_name:
                 if not df_stok.empty:
                     with st.form("form_keluar", clear_on_submit=True):
-                        nm_o = st.selectbox("Barang Keluar:", df_stok['Barang'].unique())
+                        nm_o = st.selectbox("Pilih Barang Keluar:", df_stok['Barang'].unique())
                         inf_o = df_stok[df_stok['Barang'] == nm_o].iloc[0]
                         st.warning(f"Sisa Stok: {inf_o['Sisa Stok']} {inf_o['Satuan']}")
                         jml_o = st.number_input("Jumlah Keluar:", min_value=1, max_value=int(inf_o['Sisa Stok']))
@@ -128,16 +156,17 @@ else:
                                 "kategori": inf_o['Kategori'], "barang": nm_o, "jumlah": int(jml_o), "satuan": inf_o['Satuan']
                             }).execute()
                             st.session_state.report += f"• {nm_o}: -{jml_o} {inf_o['Satuan']}\n"
-                            st.success("Barang Keluar Dicatat!")
-                else: st.error("Tidak ada data barang untuk dikeluarkan.")
+                            st.success("Berhasil dicatat!")
+                            st.rerun()
+                else: st.error("Gudang masih kosong.")
 
             elif "WA" in t_name:
                 if st.session_state.report:
                     msg = f"*LAPORAN GUDANG*\nUser: {st.session_state.role}\n---\n{st.session_state.report}"
                     st.text_area("Preview Laporan:", msg, height=150)
-                    st.markdown(f'<a href="https://wa.me/?text={urllib.parse.quote(msg)}" target="_blank" style="text-decoration:none;"><div style="background-color:#FFFFFF;color:#000000;padding:15px;border-radius:4px;text-align:center;font-weight:bold;">🚀 KIRIM LAPORAN KE WA</div></a>', unsafe_allow_html=True)
-                    if st.button("Hapus Draft"): st.session_state.report = ""; st.rerun()
-                else: st.info("Belum ada aktivitas hari ini.")
+                    st.markdown(f'<a href="https://wa.me/?text={urllib.parse.quote(msg)}" target="_blank" style="text-decoration:none;"><div style="background-color:#FFFFFF;color:#000000;padding:15px;border-radius:4px;text-align:center;font-weight:bold;">🚀 KIRIM WA</div></a>', unsafe_allow_html=True)
+                    if st.button("Reset Draft"): st.session_state.report = ""; st.rerun()
+                else: st.info("Belum ada aktivitas.")
 
             elif "LOGOUT" in t_name:
                 if st.button("KELUAR AKUN"):
