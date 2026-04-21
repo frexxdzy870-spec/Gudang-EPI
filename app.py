@@ -19,92 +19,105 @@ supabase = init_connection()
 st.set_page_config(page_title="THANKS.EPIDEMi!", layout="centered")
 
 st.markdown("""
-<style>
-    /* 1. Background Utama & Font */
+st.markdown("""
+    <style>
+    /* 1. Background Utama - Putih Bersih */
     .stApp {
-        background-color: #000000; /* Hitam Pekat */
-        color: #FFFFFF;
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
     }
 
-    /* 2. Container Logo Biar Center Total */
+    /* 2. Container Logo */
     [data-testid="stImage"] {
         display: block;
         margin-left: auto;
         margin-right: auto;
-        filter: drop-shadow(0px 0px 5px rgba(255,255,255,0.2));
+        padding-bottom: 20px;
     }
 
-    /* 3. Tipografi & Judul */
-    h1, h2, h3, h4, p, label, .stMarkdown {
-        color: #FFFFFF !important;
+    /* 3. Semua Teks & Label - Hitam Dalam */
+    h1, h2, h3, h4, h5, h6, p, label, .stMarkdown, .stText {
+        color: #000000 !important;
         text-align: center;
-        font-family: 'Inter', sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* 4. Form & Input Field */
+    /* 4. Form & Container Input - Putih dengan Border Hitam Tipis */
     div[data-testid="stForm"] {
-        border: 2px solid #FFFFFF; /* Garis Putih Tegas */
-        border-radius: 15px;
+        border: 1px solid #E0E0E0; /* Abu-abu sangat muda biar gak kaku */
+        border-radius: 12px;
         padding: 30px;
-        background-color: #111111; /* Hitam Abu biar gak mati banget */
+        background-color: #FFFFFF;
+        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05); /* Shadow tipis biar estetik */
     }
 
-    /* Input text, selectbox, dll */
-    .stTextInput>div>div>input, .stSelectbox>div>div>div, .stNumberInput>div>div>input {
-        background-color: #000000 !important;
-        color: #FFFFFF !important;
-        border: 1px solid #444 !important;
+    /* Input Field & Selectbox */
+    .stTextInput>div>div>input, 
+    .stSelectbox>div>div>div, 
+    .stNumberInput>div>div>input {
+        background-color: #F9F9F9 !important; /* Abu-abu dikit biar beda sama background */
+        color: #000000 !important;
+        border: 1px solid #CCCCCC !important;
+        border-radius: 8px !important;
     }
 
-    /* 5. Tombol (Inverted: Putih Tulisan Hitam) */
+    /* 5. Tombol - Hitam Pekat dengan Teks Putih (Contrast King) */
     .stButton>button {
         width: 100%;
-        background-color: #FFFFFF !important;
-        color: #000000 !important;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        border-radius: 5px;
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        font-weight: 700;
+        border-radius: 8px;
         border: none;
-        transition: 0.3s;
-        height: 3em;
+        height: 3.5em;
+        transition: 0.2s;
     }
 
     .stButton>button:hover {
-        background-color: #CCCCCC !important; /* Abu-abu terang pas hover */
-        border: none;
+        background-color: #333333 !important; /* Hitam pudar dikit pas hover */
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    /* 6. Tabs (Navigasi Atas) */
+    /* 6. Tabs Navigasi */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-        background-color: #000000;
+        gap: 8px;
+        background-color: #FFFFFF;
     }
 
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        background-color: #111111;
-        border-radius: 5px 5px 0px 0px;
-        color: #FFFFFF;
-        border: 1px solid #333;
+        background-color: #F0F0F0;
+        color: #666666;
+        border-radius: 8px 8px 0px 0px;
+        padding: 10px 20px;
     }
 
     .stTabs [aria-selected="true"] {
-        background-color: #FFFFFF !important;
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        font-weight: bold;
+    }
+
+    /* 7. Sidebar - Putih Bersih */
+    [data-testid="stSidebar"] {
+        background-color: #FFFFFF;
+        border-right: 1px solid #EEEEEE;
+    }
+    
+    [data-testid="stSidebar"] * {
         color: #000000 !important;
     }
 
-    /* 7. Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: #111111;
-        border-right: 1px solid #333;
+    /* 8. Table/Dataframe - Bersih */
+    .stDataFrame {
+        border: 1px solid #EEEEEE;
+        background-color: #FFFFFF;
     }
 
-    /* 8. Dataframe (Tabel) biar senada */
-    .stDataFrame {
-        border: 1px solid #FFFFFF;
+    /* Fix Icon & Metric */
+    [data-testid="stMetricValue"] {
+        color: #000000 !important;
     }
-</style>
+    </style>
 """, unsafe_allow_html=True)
 
 if 'user' not in st.session_state: st.session_state.user = None
