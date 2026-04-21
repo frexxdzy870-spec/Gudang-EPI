@@ -13,7 +13,7 @@ SUPABASE_KEY = "ISI_ANON_KEY_LU"
 
 # Link Logo 'THANKS.EPIDEMi!' (Pake link raw biar stabil)
 # Jika lu naro file logo.png di folder yang sama dengan app.py, ganti jadi "logo.png"
-LOGO_IMAGE = "https://raw.githubusercontent.com/username/repo/main/logo.png"
+LOGO_IMAGE = "https://github.com/frexxdzy870-spec/Gudang-EPI/blob/main/logo.png.jpg?raw=true"
 
 @st.cache_resource
 def init_connection():
