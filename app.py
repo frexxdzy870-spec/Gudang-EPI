@@ -4,11 +4,12 @@ import pandas as pd
 import urllib.parse
 
 # ==========================================
-# 1. SETUP & KONFIGURASI
+# 1. SETUP
 # ==========================================
-SUPABASE_URL = "https://obrbnenfojqdepqzxain.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9icmJuZW5mb2pxZGVwcXp4YWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NDU2MDAsImV4cCI6MjA5MjIyMTYwMH0.Ef0uELb-CwYxlKpK_DggIrfX0NZDHiyEHTIcZmseyzk"
-LOGO_URL = "https://github.com/frexxdzy870-spec/Gudang-EPI/blob/main/logo.png.jpg?raw=true"
+SUPABASE_URL = "ISI_URL_LU"
+SUPABASE_KEY = "ISI_KEY_LU"
+LOGO_URL = "https://raw.githubusercontent.com/username/repo/main/logo.png"
+
 @st.cache_resource
 def init_connection():
     return create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -17,7 +18,7 @@ supabase = init_connection()
 
 st.set_page_config(page_title="THANKS.EPIDEMi! Gudang", layout="centered")
 
-# CSS Buat Paksa Tampilan Dark & Rapih
+# CSS Fix: Paksa Logo Tengah & Warna Terang
 st.markdown("""
     <style>
     .stApp { background-color: #0E1117; }
@@ -28,20 +29,19 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# FIX ERROR: Inisialisasi session state biar gak AttributeError
-if 'user' not in st.session_state:
-    st.session_state.user = None
-if 'report_wa' not in st.session_state:
-    st.session_state.report_wa = ""
+# Inisialisasi awal
+if 'user' not in st.session_state: st.session_state.user = None
+if 'report_wa' not in st.session_state: st.session_state.report_wa = ""
 
 # ==========================================
-# 2. LOGIKA DATA
+# 2. DATA LOGIC
 # ==========================================
 def get_stock_data():
     try:
         res = supabase.table("inventory").select("*").execute()
         df = pd.DataFrame(res.data)
         if df.empty: return pd.DataFrame(), pd.DataFrame()
+        
         df_raw = df.sort_values('waktu', ascending=False)
         summary = []
         for b in df['barang'].unique():
@@ -54,16 +54,13 @@ def get_stock_data():
     except: return pd.DataFrame(), pd.DataFrame()
 
 # ==========================================
-# 3. HALAMAN LOGIN (FIX CENTER)
+# 3. HALAMAN LOGIN
 # ==========================================
 if st.session_state.user is None:
     st.write("##") 
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
-        try:
-            st.image(LOGO_URL, use_container_width=True)
-        except:
-            st.markdown("<h1 style='text-align:center;'>💀</h1>", unsafe_allow_html=True)
+        st.image(LOGO_URL, use_container_width=True)
     
     st.markdown("### LOGIN SISTEM GUDANG")
     
@@ -76,21 +73,70 @@ if st.session_state.user is None:
                 if (role == "Owner" and pw == "owner123") or (role.startswith("Staff") and pw == "staff123"):
                     st.session_state.user = role
                     st.rerun()
-                else:
-                    st.error("Password Salah!")
+                else: st.error("Password Salah!")
 
 # ==========================================
-# 4. HALAMAN UTAMA
+# 4. HALAMAN UTAMA (DASHBOARD)
 # ==========================================
 else:
+    # Logo Sidebar
     st.sidebar.image(LOGO_URL, use_container_width=True)
     st.sidebar.markdown(f"User: **{st.session_state.user}**")
     st.sidebar.markdown("---")
     
     df_summary, df_raw_history = get_stock_data()
-    tabs = st.tabs(["📊 DATA", "📜 RIWAYAT", "➕ MASUK", "➖ KELUAR", "📱 WA"]) if st.session_state.user == "Owner" else st.tabs(["➕ MASUK", "➖ KELUAR", "📱 WA"])
-    # ... (Sisa kode menu lu taruh di sini sesuai tab)
+
+    # Logika Penentuan Tab agar tidak hilang
+    if st.session_state.user == "Owner":
+        menu = ["📊 DATA", "📜 RIWAYAT", "➕ MASUK", "➖ KELUAR", "📱 WA"]
+    else:
+        menu = ["➕ MASUK", "➖ KELUAR", "📱 WA"]
     
+    tabs = st.tabs(menu)
+
+    for i, tab in enumerate(tabs):
+        with tab:
+            nama_tab = menu[i]
+            
+            if nama_tab == "📊 DATA":
+                st.dataframe(df_summary, use_container_width=True, hide_index=True)
+                if st.button("🔄 REFRESH"): st.rerun()
+
+            elif nama_tab == "📜 RIWAYAT":
+                st.dataframe(df_raw_history, use_container_width=True)
+
+            elif nama_tab == "➕ MASUK":
+                with st.form("in", clear_on_submit=True):
+                    st.subheader("Input Barang")
+                    nm = st.text_input("Nama Barang:").upper().strip()
+                    jml = st.number_input("Jumlah:", min_value=1)
+                    if st.form_submit_button("SIMPAN"):
+                        supabase.table("inventory").insert({
+                            "barang": nm, "jumlah": jml, "jenis": "MASUK", 
+                            "user_input": st.session_state.user, "kategori": "BAR", "satuan": "pcs"
+                        }).execute()
+                        st.session_state.report_wa += f"• {nm}: +{jml}\n"
+                        st.rerun()
+
+            elif nama_tab == "➖ KELUAR":
+                if not df_summary.empty:
+                    with st.form("out"):
+                        sel = st.selectbox("Pilih Barang:", df_summary['Barang'].unique())
+                        jml_o = st.number_input("Jumlah Keluar:", min_value=1)
+                        if st.form_submit_button("KELUARKAN"):
+                            supabase.table("inventory").insert({
+                                "barang": sel, "jumlah": jml_o, "jenis": "KELUAR", 
+                                "user_input": st.session_state.user
+                            }).execute()
+                            st.session_state.report_wa += f"• {sel}: -{jml_o}\n"
+                            st.rerun()
+
+            elif nama_tab == "📱 WA":
+                st.text_area("Draft Laporan:", st.session_state.report_wa)
+                if st.button("Kirim WA"):
+                    url = f"https://wa.me/?text={urllib.parse.quote(st.session_state.report_wa)}"
+                    st.markdown(f'[KLIK DI SINI]({url})')
+
     if st.sidebar.button("LOGOUT"):
         st.session_state.user = None
         st.rerun()
