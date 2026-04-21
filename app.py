@@ -8,7 +8,7 @@ import urllib.parse
 # ==========================================
 SUPABASE_URL = "ISI_URL_LU"
 SUPABASE_KEY = "ISI_KEY_LU"
-LOGO_URL = "https://raw.githubusercontent.com/username/repo/main/logo.png"
+LOGO_URL = "https://github.com/frexxdzy870-spec/Gudang-EPI/blob/main/logo.png.jpg?raw=true"
 
 @st.cache_resource
 def init_connection():
