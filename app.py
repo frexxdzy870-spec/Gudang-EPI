@@ -104,16 +104,50 @@ def insert_transaction(data_dict):
         supabase.table("inventory").insert(data_dict).execute()
         return True
     except: return False
+# ==========================================
+# 3. HALAMAN LOGIN (FIX CENTER TOTAL)
+# ==========================================
+
+if not st.session_state.user:
+    # Buat ruang kosong di atas biar gak terlalu nempel ke bar status
+    st.write("##") 
+    
+    # PAKSA TENGAH PAKE COLUMNS
+    # Perbandingan [1, 1, 1] maksa kolom tengah bener-bener di pusat
+    col1, col2, col3 = st.columns([1, 1, 1])
+    
+    with col2:
+        try:
+            # use_container_width=True supaya dia ngikutin lebar kolom tengah yang sempit
+            st.image(LOGO_URL, use_container_width=True)
+        except:
+            st.markdown("<h1 style='text-align:center;'>💀</h1>", unsafe_allow_html=True)
+    
+    # Paksa teks judul ke tengah lewat HTML
+    st.markdown("<h2 style='text-align: center;'>LOGIN SISTEM GUDANG</h2>", unsafe_allow_html=True)
+    
+    # Bungkus Form biar gak terlalu lebar di layar PC
+    col_a, col_b, col_c = st.columns([0.1, 0.8, 0.1])
+    with col_b:
+        with st.form("form_login"):
+            role = st.selectbox("Role:", ["Staff Shift 1", "Staff Shift 2", "Owner"])
+            pw = st.text_input("Password:", type="password")
+            if st.form_submit_button("MASUK SISTEM"):
+                if (role == "Owner" and pw == "owner123") or (role.startswith("Staff") and pw == "staff123"):
+                    st.session_state.user = role
+                    st.rerun()
+                else: 
+                    st.error("Password Salah!")
 
 # ==========================================
-# 3. SESSION STATE & LAPORAN WA
+# 4. SESSION STATE & LAPORAN WA
 # ==========================================
 
 if 'user' not in st.session_state: st.session_state.user = None
 if 'report_wa' not in st.session_state: st.session_state.report_wa = ""
 
 # ==========================================
-# 4. HALAMAN LOGIN (DENGAN LOGO ATAS)
+# 5. HALAMAN LOGIN (DENGAN LOGO ATAS)
 # ==========================================
 
 if not st.session_state.user:
@@ -138,7 +172,7 @@ if not st.session_state.user:
             else: st.error("Password Salah, Bjir!")
 
 # ==========================================
-# 5. HALAMAN UTAMA (DENGAN LOGO SIDEBAR)
+# 6. HALAMAN UTAMA (DENGAN LOGO SIDEBAR)
 # ==========================================
 
 else:
