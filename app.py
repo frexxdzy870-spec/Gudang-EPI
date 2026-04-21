@@ -24,11 +24,21 @@ supabase = init_connection()
 # Pengaturan Halaman
 st.set_page_config(page_title="THANKS.EPIDEMi! Gudang", layout="centered")
 
-# CSS: Tampilan Dark Mode, Kontras Tinggi, dan Styling Logo
+# CSS: PAKSA LOGO KE TENGAH & DARK MODE
 st.markdown("""
     <style>
     .stApp { background-color: #0E1117; }
-    h1, h2, h3, p, label, .stMarkdown { color: #FFFFFF !important; }
+    
+    /* Container Logo Login biar Center */
+    .centered-logo {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px 0;
+        width: 100%;
+    }
+
+    h1, h2, h3, p, label { color: #FFFFFF !important; }
     
     /* Tombol Style */
     .stButton>button { 
@@ -39,19 +49,11 @@ st.markdown("""
         height: 3.5em; 
         border-radius: 8px;
     }
-    .stButton>button:hover { background-color: #DDDDDD !important; }
     
-    /* Form Style */
-    div[data-testid="stForm"] { border: 1px solid #444; border-radius: 10px; padding: 20px; }
-    
-    /* Logo Center di Login */
-    .login-logo { display: flex; justify-content: center; margin-bottom: 20px; }
-    
-    /* Sidebar Styling */
-    .css-163463a { background-color: #1A1C23; border-right: 1px solid #333; }
+    /* Form Border */
+    div[data-testid="stForm"] { border: 1px solid #444; border-radius: 10px; padding: 25px; }
     </style>
 """, unsafe_allow_html=True)
-
 # ==========================================
 # 2. FUNGSI DATA (LOGIKA SOLID)
 # ==========================================
