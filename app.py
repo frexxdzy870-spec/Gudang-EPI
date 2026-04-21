@@ -24,23 +24,32 @@ supabase = init_connection()
 # Pengaturan Halaman
 st.set_page_config(page_title="THANKS.EPIDEMi! Gudang", layout="centered")
 
-# CSS: PAKSA LOGO KE TENGAH & DARK MODE
+# CSS: PAKSA LOGO KE TENGAH TOTAL
 st.markdown("""
     <style>
+    /* 1. Background Utama */
     .stApp { background-color: #0E1117; }
+
+    /* 2. Container Logo Biar Center Total */
+    [data-testid="stImage"] {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
     
-    /* Container Logo Login biar Center */
-    .centered-logo {
+    .centered-container {
         display: flex;
         justify-content: center;
-        align-items: center;
-        padding: 20px 0;
         width: 100%;
     }
 
-    h1, h2, h3, p, label { color: #FFFFFF !important; }
+    /* 3. Teks & Label */
+    h1, h2, h3, h4, p, label { 
+        color: #FFFFFF !important; 
+        text-align: center; 
+    }
     
-    /* Tombol Style */
+    /* 4. Input & Button */
     .stButton>button { 
         width: 100%; 
         background-color: #FFFFFF !important; 
@@ -48,10 +57,15 @@ st.markdown("""
         font-weight: bold; 
         height: 3.5em; 
         border-radius: 8px;
+        margin-top: 10px;
     }
     
-    /* Form Border */
-    div[data-testid="stForm"] { border: 1px solid #444; border-radius: 10px; padding: 25px; }
+    div[data-testid="stForm"] { 
+        border: 1px solid #444; 
+        border-radius: 10px; 
+        padding: 25px; 
+        background-color: #161922;
+    }
     </style>
 """, unsafe_allow_html=True)
 # ==========================================
