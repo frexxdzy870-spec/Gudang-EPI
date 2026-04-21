@@ -20,7 +20,7 @@ st.set_page_config(page_title="THANKS.EPIDEMi!", layout="centered")
 
 st.markdown("""
     <style>
-    .stApp { background-color: #0E1117; }
+    .stApp { background-color: #FFFFFF; }
     [data-testid="stImage"] { display: block; margin-left: auto; margin-right: auto; }
     h1, h2, h3, h4, p, label { color: #FFFFFF !important; text-align: center; }
     .stButton>button { width: 100%; background-color: #FFFFFF !important; color: #000000 !important; font-weight: bold; border-radius: 8px; }
