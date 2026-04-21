@@ -16,7 +16,7 @@ def init_connection():
 
 supabase = init_connection()
 
-st.set_page_config(page_title="THANKS.EPIDEMi!", layout="centered")
+st.set_page_config(page_title="Gudang Epidemi", layout="centered")
 
 st.markdown("""
     <style>
@@ -136,7 +136,7 @@ if st.session_state.user is None:
     st.write("##")
     c1, c2, c3 = st.columns([1, 1, 1])
     with c2: st.image(LOGO_URL, use_container_width=True)
-    st.markdown("### LOGIN SISTEM")
+    st.markdown("### LOGIN")
     with st.form("login"):
         role = st.selectbox("Role:", ["Staff Shift 1", "Staff Shift 2", "Owner"])
         pw = st.text_input("Password:", type="password")
@@ -149,14 +149,14 @@ if st.session_state.user is None:
 else:
     st.sidebar.image(LOGO_URL, use_container_width=True)
     df_summary, df_raw_history = get_stock_data()
-    menu = ["📊 DATA", "📜 RIWAYAT", "➕ MASUK", "➖ KELUAR", "📱 WA"] if st.session_state.user == "Owner" else ["➕ MASUK", "➖ KELUAR", "📱 WA"]
+    menu = ["DATA", "RIWAYAT", "MASUK", "KELUAR", "LAPORAN"] if st.session_state.user == "Owner" else ["MASUK", "KELUAR", "LAPORAN"]
     tabs = st.tabs(menu)
 
     for i, tab in enumerate(tabs):
         with tab:
             label = menu[i]
             
-            if label == "➕ MASUK":
+            if label == "MASUK":
                 # KUNCI SINKRONISASI DI SINI
                 st.subheader("Update Stok / Tambah Barang")
                 
@@ -193,13 +193,13 @@ else:
                             st.rerun()
                         else: st.error("Isi nama barangnya!")
 
-            elif label == "📊 DATA":
+            elif label == "DATA":
                 st.dataframe(df_summary, use_container_width=True, hide_index=True)
 
-            elif label == "📜 RIWAYAT":
+            elif label == "RIWAYAT":
                 st.dataframe(df_raw_history[['waktu', 'barang', 'jenis', 'jumlah', 'user_input']], use_container_width=True)
 
-            elif label == "➖ KELUAR":
+            elif label == "KELUAR":
                 if not df_summary.empty:
                     with st.form("out"):
                         sel = st.selectbox("Barang Keluar:", df_summary['Barang'].unique())
@@ -214,7 +214,7 @@ else:
                             st.session_state.report_wa += f"• {sel}: -{jml_o} {info['Satuan']}\n"
                             st.rerun()
 
-            elif label == "📱 WA":
+            elif label == "LAPORAN":
                 st.text_area("Draft:", st.session_state.report_wa)
                 if st.button("Kirim WA"):
                     url = f"https://wa.me/?text={urllib.parse.quote(st.session_state.report_wa)}"
