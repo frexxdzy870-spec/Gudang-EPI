@@ -19,7 +19,6 @@ supabase = init_connection()
 st.set_page_config(page_title="THANKS.EPIDEMi!", layout="centered")
 
 st.markdown("""
-st.markdown("""
     <style>
     /* 1. Background Utama - Putih Bersih */
     .stApp {
