@@ -303,20 +303,13 @@ else:
                         st.session_state.report_wa = ""
                         st.rerun()
 
-# --- AREA SIDEBAR (TARUH DI LUAR LOOP TABS) ---
 # --- AREA SIDEBAR ---
 with st.sidebar:
-    # Tampilkan Logo (Bisa ditaruh di sini biar selalu ada)
-    # st.image("logo.png") 
-
-    # CEK APAKAH USER SUDAH LOGIN?
-    if st.session_state.authenticated:
-        st.write(f"Logged in as: **{st.session_state.user.upper()}**")
+    # Cek pake .get() lebih aman biar gak gampang Attribute Error
+    if st.session_state.get('authenticated', False):
+        st.write(f"Logged in as: **{st.session_state.user}**")
         st.write("---")
-        
-        # Tombol Logout cuma muncul kalau sudah login
-        if st.button("LOGOUT", use_container_width=True):
+        if st.button("🚪 LOGOUT", use_container_width=True):
             st.session_state.authenticated = False
             st.session_state.user = None
             st.rerun()
-   
