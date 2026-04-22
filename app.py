@@ -296,14 +296,21 @@ else:
                         st.rerun()
 
 # --- AREA SIDEBAR (TARUH DI LUAR LOOP TABS) ---
+# --- AREA SIDEBAR ---
 with st.sidebar:
-    st.write("##") # Kasih jarak dari logo
-    st.write("---") 
-    
-    # Tombol Logout Paksa
-    logout_klik = st.button("🚪 LOGOUT SEKARANG", use_container_width=True, key="btn_logout_fix")
-    
-    if logout_klik:
-        st.session_state.authenticated = False
-        st.session_state.user = None
-        st.rerun()
+    # Tampilkan Logo (Bisa ditaruh di sini biar selalu ada)
+    # st.image("logo.png") 
+
+    # CEK APAKAH USER SUDAH LOGIN?
+    if st.session_state.authenticated:
+        st.write(f"Logged in as: **{st.session_state.user.upper()}**")
+        st.write("---")
+        
+        # Tombol Logout cuma muncul kalau sudah login
+        if st.button("LOGOUT", use_container_width=True):
+            st.session_state.authenticated = False
+            st.session_state.user = None
+            st.rerun()
+    else:
+        # Kalau belum login, sidebar dikosongin aja atau kasih teks selamat datang
+        st.info("Silahkan login di menu utama.")
