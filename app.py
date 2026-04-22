@@ -219,21 +219,36 @@ else:
                             st.success("Tersimpan!")
                             st.rerun()
 
-            # 4. TAB KELUAR
+           # 4. TAB KELUAR
             elif label == "KELUAR":
                 if not df_summary.empty:
-                    with st.form("form_out"):
+                    with st.form("form_out", clear_on_submit=True):
                         sel = st.selectbox("Pilih Barang:", df_summary['Barang'].unique())
                         info = df_summary[df_summary['Barang'] == sel].iloc[0]
-                        st.warning(f"Stok: {info['Sisa Stok']} {info['Satuan']}")
-                        jml_o = st.number_input("Jumlah Keluar:", min_value=1, max_value=int(info['Sisa Stok']))
+                        
+                        # HANYA OWNER YANG BISA LIHAT STOK (Sembunyiin buat Staff)
+                        if st.session_state.user == "owner":
+                            st.warning(f"Stok Saat Ini: {info['Sisa Stok']} {info['Satuan']}")
+                        
+                        jml_o = st.number_input("Jumlah Keluar:", min_value=1)
+                        
                         if st.form_submit_button("KELUARKAN"):
-                            supabase.table("inventory").insert({
-                                "barang": sel, "jumlah": jml_o, "jenis": "KELUAR", 
-                                "user_input": st.session_state.user, "kategori": info['Kategori'], "satuan": info['Satuan']
-                            }).execute()
-                            st.session_state.report_wa += f"• {sel}: -{jml_o} {info['Satuan']}\n"
-                            st.rerun()
+                            # Cek stok dulu biar nggak minus (validasi internal tetap jalan)
+                            if jml_o > int(info['Sisa Stok']):
+                                st.error(f"Gagal! Stok tidak cukup (Tersedia: {info['Sisa Stok']})")
+                            else:
+                                supabase.table("inventory").insert({
+                                    "barang": sel, "jumlah": jml_o, "jenis": "KELUAR", 
+                                    "user_input": st.session_state.user, 
+                                    "kategori": info['Kategori'], "satuan": info['Satuan']
+                                }).execute()
+                                
+                                # Update report WA format tabel
+                                nama_b = (sel[:12] + '..') if len(sel) > 12 else sel.ljust(14)
+                                st.session_state.report_wa += f"| {nama_b} | -{str(jml_o).ljust(3)} | {info['Satuan'].ljust(5)} |\n"
+                                
+                                st.success(f"Berhasil mengeluarkan {sel}")
+                                st.rerun()
 
             # 5. TAB WA
             elif label == "LAPORAN WA":
