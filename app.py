@@ -319,6 +319,4 @@ with st.sidebar:
             st.session_state.authenticated = False
             st.session_state.user = None
             st.rerun()
-    else:
-        # Kalau belum login, sidebar dikosongin aja atau kasih teks selamat datang
-        st.info("Silahkan login di menu utama.")
+   
