@@ -162,143 +162,71 @@ else:
     menu = ["DATA", "RIWAYAT", "MASUK", "KELUAR", "LAPORAN"] if st.session_state.user == "Owner" else ["MASUK", "KELUAR", "LAPORAN"]
     tabs = st.tabs(menu)
 
+  # Loop Tabs
     for i, tab in enumerate(tabs):
         with tab:
             label = menu[i]
             
+            # 1. TAB DATA
             if label == "DATA":
-                st.dataframe(df_summary, use_container_width=True)
+                if not df_summary.empty:
+                    st.dataframe(df_summary, use_container_width=True, hide_index=True)
+                else:
+                    st.info("Gudang kosong.")
 
+            # 2. TAB RIWAYAT
             elif label == "RIWAYAT":
-                st.dataframe(df_raw_history, use_container_width=True)
+                if not df_raw_history.empty:
+                    kolom_tersedia = df_raw_history.columns.tolist()
+                    kolom_target = ['waktu', 'barang', 'jenis', 'jumlah', 'user_input']
+                    kolom_fix = [c for c in kolom_target if c in kolom_tersedia]
+                    st.dataframe(df_raw_history[kolom_fix], use_container_width=True)
+                else:
+                    st.info("Belum ada riwayat.")
 
-           elif label == "MASUK":  # <--- SEJAJARIN SAMA IF/ELIF DI ATASNYA
+            # 3. TAB MASUK (SINKRON & SEARCH)
+            elif label == "MASUK":
                 st.subheader("Update Stok / Tambah Barang")
-                elif label == "➕ MASUK":
-                st.subheader("Update Stok / Tambah Barang")
-                
-                # List barang yang sudah ada untuk fitur pencarian
                 list_barang = ["+ TAMBAH BARANG BARU"]
                 if not df_summary.empty:
-                    # Diurutkan abjad biar makin gampang dicarinya
                     list_barang += sorted(df_summary['Barang'].tolist())
                 
-                # Fitur Search Otomatis ada di sini (tinggal ketik di dalam box)
-                pilihan = st.selectbox(
-                    "Cari Nama Barang (Ketik untuk mencari):", 
-                    list_barang, 
-                    key="search_barang_masuk",
-                    help="Ketik nama barang untuk mempercepat pencarian"
-                )
+                # Input Selection di luar form biar sinkron
+                pilihan = st.selectbox("Cari Barang:", list_barang, key="cari_brg")
                 
-                with st.form("form_update_masuk", clear_on_submit=True):
+                with st.form("form_in", clear_on_submit=True):
                     if pilihan == "+ TAMBAH BARANG BARU":
                         nm = st.text_input("Nama Barang Baru:").upper().strip()
-                        col1, col2 = st.columns(2)
-                        with col1:
+                        c1, c2 = st.columns(2)
+                        with c1:
                             kt = st.selectbox("Kategori:", ["BAR", "KITCHEN", "STATIONERY", "OTHER"])
-                        with col2:
+                        with c2:
                             stn = st.selectbox("Satuan:", ["pack", "pcs", "box", "gram", "kg", "liter"])
                     else:
                         nm = pilihan
-                        # Cari data pendukung secara otomatis
                         row = df_summary[df_summary['Barang'] == nm].iloc[0]
                         kt, stn = row['Kategori'], row['Satuan']
-                        
-                        # Info Ringkas Barang yang dipilih
-                        st.markdown(f"""
-                        <div style="background-color: rgba(0,0,0,0.05); padding: 10px; border-radius: 10px; border-left: 5px solid #000;">
-                            <p style="margin:0; text-align:left;">📦 <b>Barang:</b> {nm}</p>
-                            <p style="margin:0; text-align:left;">🏷️ <b>Kategori:</b> {kt} | 📏 <b>Satuan:</b> {stn}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        st.write("##") # Spasi
+                        st.info(f"Update: {nm} ({kt} - {stn})")
                     
-                    jml = st.number_input("Jumlah Tambahan:", min_value=1)
-                    
-                    if st.form_submit_button("SIMPAN DATA"):
+                    jml = st.number_input("Jumlah:", min_value=1)
+                    if st.form_submit_button("SIMPAN"):
                         if nm:
                             supabase.table("inventory").insert({
                                 "barang": nm, "kategori": kt, "satuan": stn, 
                                 "jumlah": jml, "jenis": "MASUK", "user_input": st.session_state.user
                             }).execute()
-                            # Update report WA
                             st.session_state.report_wa += f"• {nm}: +{jml} {stn}\n"
-                            st.success(f"Berhasil update {nm}!")
+                            st.success("Tersimpan!")
                             st.rerun()
-                        else:
-                            st.error("Nama barang tidak boleh kosong!")
-           elif label == "KELUAR":
-                # ... kode keluar ...
-             
-           elif label == "MASUK":
-                st.subheader("Update Stok / Tambah Barang")
-                
-                # List barang yang sudah ada untuk fitur pencarian
-                list_barang = ["+ TAMBAH BARANG BARU"]
-                if not df_summary.empty:
-                    # Diurutkan abjad biar makin gampang dicarinya
-                    list_barang += sorted(df_summary['Barang'].tolist())
-                
-                # Fitur Search Otomatis ada di sini (tinggal ketik di dalam box)
-                pilihan = st.selectbox(
-                    "Cari Nama Barang (Ketik untuk mencari):", 
-                    list_barang, 
-                    key="search_barang_masuk",
-                    help="Ketik nama barang untuk mempercepat pencarian"
-                )
-                
-                with st.form("form_update_masuk", clear_on_submit=True):
-                    if pilihan == "+ TAMBAH BARANG BARU":
-                        nm = st.text_input("Nama Barang Baru:").upper().strip()
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            kt = st.selectbox("Kategori:", ["BAR", "KITCHEN", "STATIONERY", "OTHER"])
-                        with col2:
-                            stn = st.selectbox("Satuan:", ["pack", "pcs", "box", "gram", "kg", "liter"])
-                    else:
-                        nm = pilihan
-                        # Cari data pendukung secara otomatis
-                        row = df_summary[df_summary['Barang'] == nm].iloc[0]
-                        kt, stn = row['Kategori'], row['Satuan']
-                        
-                        # Info Ringkas Barang yang dipilih
-                        st.markdown(f"""
-                        <div style="background-color: rgba(0,0,0,0.05); padding: 10px; border-radius: 10px; border-left: 5px solid #000;">
-                            <p style="margin:0; text-align:left;">📦 <b>Barang:</b> {nm}</p>
-                            <p style="margin:0; text-align:left;">🏷️ <b>Kategori:</b> {kt} | 📏 <b>Satuan:</b> {stn}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        st.write("##") # Spasi
-                    
-                    jml = st.number_input("Jumlah Tambahan:", min_value=1)
-                    
-                    if st.form_submit_button("SIMPAN DATA"):
-                        if nm:
-                            supabase.table("inventory").insert({
-                                "barang": nm, "kategori": kt, "satuan": stn, 
-                                "jumlah": jml, "jenis": "MASUK", "user_input": st.session_state.user
-                            }).execute()
-                            # Update report WA
-                            st.session_state.report_wa += f"• {nm}: +{jml} {stn}\n"
-                            st.success(f"Berhasil update {nm}!")
-                            st.rerun()
-                        else:
-                            st.error("Nama barang tidak boleh kosong!")
 
-            elif label == "DATA":
-                st.dataframe(df_summary, use_container_width=True, hide_index=True)
-
-            elif label == "RIWAYAT":
-                st.dataframe(df_raw_history[['waktu', 'barang', 'jenis', 'jumlah', 'user_input']], use_container_width=True)
-
+            # 4. TAB KELUAR
             elif label == "KELUAR":
                 if not df_summary.empty:
-                    with st.form("out"):
-                        sel = st.selectbox("Barang Keluar:", df_summary['Barang'].unique())
+                    with st.form("form_out"):
+                        sel = st.selectbox("Pilih Barang:", df_summary['Barang'].unique())
                         info = df_summary[df_summary['Barang'] == sel].iloc[0]
                         st.warning(f"Stok: {info['Sisa Stok']} {info['Satuan']}")
-                        jml_o = st.number_input("Jumlah:", min_value=1, max_value=int(info['Sisa Stok']))
+                        jml_o = st.number_input("Jumlah Keluar:", min_value=1, max_value=int(info['Sisa Stok']))
                         if st.form_submit_button("KELUARKAN"):
                             supabase.table("inventory").insert({
                                 "barang": sel, "jumlah": jml_o, "jenis": "KELUAR", 
@@ -307,12 +235,9 @@ else:
                             st.session_state.report_wa += f"• {sel}: -{jml_o} {info['Satuan']}\n"
                             st.rerun()
 
-            elif label == "LAPORAN":
-                st.text_area("Draft:", st.session_state.report_wa)
+            # 5. TAB WA
+            elif label == "LAPORAN WA":
+                st.text_area("Draft Laporan:", st.session_state.report_wa, height=150)
                 if st.button("Kirim WA"):
                     url = f"https://wa.me/?text={urllib.parse.quote(st.session_state.report_wa)}"
-                    st.markdown(f'[KLIK DI SINI]({url})')
-
-    if st.sidebar.button("LOGOUT"):
-        st.session_state.user = None
-        st.rerun()
+                    st.markdown(f'[KLIK DISINI UNTUK KIRIM]({url})')
