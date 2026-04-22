@@ -303,27 +303,10 @@ else:
                         st.session_state.report_wa = ""
                         st.rerun()
 
-# --- AREA SIDEBAR (Pastikan paling kiri, nggak masuk tab mana pun) ---
+# --- TOMBOL LOGOUT SIMPEL ---
 with st.sidebar:
-    # 1. Judul/Logo Sidebar
-    st.markdown("<h2 style='text-align: center;'> EPIDEMI CONTROL</h2>", unsafe_allow_html=True)
-    st.write("---")
-
-    # 2. Cek Status Login
-    # Kita pake .get biar aman kalau inisialisasi telat
-    is_auth = st.session_state.get('authenticated', False)
-    user_now = st.session_state.get('user', 'Guest')
-
-    if is_auth:
-        st.success(f"User: **{user_now.upper()}**")
-        st.write("---")
-        
-        # TOMBOL LOGOUT UTAMA
-        if st.button("LOGOUT SEKARANG", use_container_width=True, type="primary"):
-            st.session_state.authenticated = False
-            st.session_state.user = None
-            st.rerun()
-    else:
-        # Tampilan kalau belum login
-        st.warning("Status: Offline")
-        st.info("Silahkan login untuk akses menu.")
+    st.write("---") # Garis pembatas biar rapi
+    if st.button("LOGOUT", use_container_width=True):
+        st.session_state.authenticated = False
+        st.session_state.user = None
+        st.rerun()
