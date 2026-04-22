@@ -166,7 +166,7 @@ else:
         with tab:
             label = menu[i]
             
-            elif label == "➕ MASUK":
+         elif label == "➕ MASUK":
                 st.subheader("Update Stok / Tambah Barang")
                 
                 # List barang yang sudah ada untuk fitur pencarian
