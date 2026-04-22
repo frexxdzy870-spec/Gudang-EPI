@@ -251,7 +251,7 @@ else:
                                 st.rerun()
 
 # 5. TAB WA (REVISI FIX - NO BLANK)
-            elif label == "LAPORAN WA":
+            elif label == "LAPORAN":
                 st.subheader("Kirim Laporan Grup")
                 
                 # Cek dulu apakah session_state report_wa sudah ada
