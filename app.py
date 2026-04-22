@@ -179,7 +179,7 @@ else:
             elif label == "KELUAR":
                 # ... kode keluar ...
              
-             elif label == "MASUK":
+            elif label == "MASUK":
                 st.subheader("Update Stok / Tambah Barang")
                 
                 # List barang yang sudah ada untuk fitur pencarian
