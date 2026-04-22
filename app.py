@@ -250,27 +250,47 @@ else:
                                 st.success(f"Berhasil mengeluarkan {sel}")
                                 st.rerun()
 
-            # 5. TAB WA
+# 5. TAB WA (REVISI FIX - NO BLANK)
             elif label == "LAPORAN WA":
                 st.subheader("Kirim Laporan Grup")
                 
-                # Header Tabel untuk WA
+                # Cek dulu apakah session_state report_wa sudah ada
+                if 'report_wa' not in st.session_state:
+                    st.session_state.report_wa = ""
+                
+                # Header Tabel untuk WA biar kayak Excel
                 header = "*REKAP STOK EPIDEMI*\n"
                 header += "```\n"
                 header += "+----------------+-----+-------+\n"
                 header += "| Nama Barang    | Qty | Sat   |\n"
                 header += "+----------------+-----+-------+\n"
+                
+                # Isi data
+                body = st.session_state.report_wa if st.session_state.report_wa else "  (Belum ada data transaksi)  \n"
+                
                 footer = "+----------------+-----+-------+```"
                 
-                full_report = header + st.session_state.report_wa + footer
+                full_report = header + body + footer
                 
+                # Tampilkan Preview
                 st.text_area("Preview Laporan:", full_report, height=250)
                 
-                if st.button("KIRIM KE WHATSAPP"):
+                # Kolom Tombol
+                col_a, col_b = st.columns(2)
+                
+                with col_a:
                     import urllib.parse
                     pesan_wa = urllib.parse.quote(full_report)
-                    st.markdown(f'<a href="https://wa.me/?text={pesan_wa}" target="_blank" style="text-decoration:none;"><div style="background-color:#25D366;color:white;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">🚀 KIRIM KE WHATSAPP SEKARANG</div></a>', unsafe_allow_html=True)
+                    # Tombol WA Estetik
+                    st.markdown(f'''
+                        <a href="https://wa.me/?text={pesan_wa}" target="_blank" style="text-decoration:none;">
+                            <div style="background-color:#25D366; color:white; padding:10px; border-radius:10px; text-align:center; font-weight:bold; cursor:pointer;">
+                                KIRIM KE WHATSAPP
+                            </div>
+                        </a>
+                    ''', unsafe_allow_html=True)
                 
-                if st.button("Reset Draft"):
-                    st.session_state.report_wa = ""
-                    st.rerun()
+                with col_b:
+                    if st.button("RESET DRAFT", use_container_width=True):
+                        st.session_state.report_wa = ""
+                        st.rerun()
