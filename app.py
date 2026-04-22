@@ -252,7 +252,25 @@ else:
 
             # 5. TAB WA
             elif label == "LAPORAN WA":
-                st.text_area("Draft Laporan:", st.session_state.report_wa, height=150)
-                if st.button("Kirim WA"):
-                    url = f"https://wa.me/?text={urllib.parse.quote(st.session_state.report_wa)}"
-                    st.markdown(f'[KLIK DISINI UNTUK KIRIM]({url})')
+                st.subheader("Kirim Laporan Grup")
+                
+                # Header Tabel untuk WA
+                header = "*REKAP STOK EPIDEMI*\n"
+                header += "```\n"
+                header += "+----------------+-----+-------+\n"
+                header += "| Nama Barang    | Qty | Sat   |\n"
+                header += "+----------------+-----+-------+\n"
+                footer = "+----------------+-----+-------+```"
+                
+                full_report = header + st.session_state.report_wa + footer
+                
+                st.text_area("Preview Laporan:", full_report, height=250)
+                
+                if st.button("KIRIM KE WHATSAPP"):
+                    import urllib.parse
+                    pesan_wa = urllib.parse.quote(full_report)
+                    st.markdown(f'<a href="https://wa.me/?text={pesan_wa}" target="_blank" style="text-decoration:none;"><div style="background-color:#25D366;color:white;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">🚀 KIRIM KE WHATSAPP SEKARANG</div></a>', unsafe_allow_html=True)
+                
+                if st.button("Reset Draft"):
+                    st.session_state.report_wa = ""
+                    st.rerun()
