@@ -165,8 +165,21 @@ else:
     for i, tab in enumerate(tabs):
         with tab:
             label = menu[i]
+            
+            if label == "DATA":
+                st.dataframe(df_summary, use_container_width=True)
+
+            elif label == "RIWAYAT":
+                st.dataframe(df_raw_history, use_container_width=True)
+
+            elif label == "MASUK":  # <--- SEJAJARIN SAMA IF/ELIF DI ATASNYA
+                st.subheader("Update Stok / Tambah Barang")
+                # ... isi kode yang gue kasih tadi ...
+                
+            elif label == "KELUAR":
+                # ... kode keluar ...
              
-             elif label == "➕ MASUK":
+             elif label == "MASUK":
                 st.subheader("Update Stok / Tambah Barang")
                 
                 # List barang yang sudah ada untuk fitur pencarian
