@@ -18,6 +18,14 @@ supabase = init_connection()
 
 st.set_page_config(page_title="Gudang Epidemi", layout="centered")
 
+# --- INISIALISASI SESSION STATE (Taruh paling atas setelah import) ---
+if 'authenticated' not in st.session_state:
+    st.session_state.authenticated = False
+if 'user' not in st.session_state:
+    st.session_state.user = None
+if 'report_wa' not in st.session_state:
+    st.session_state.report_wa = ""
+
 st.markdown("""
     <style>
     /* 1. Background Utama */
