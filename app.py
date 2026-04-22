@@ -294,3 +294,16 @@ else:
                     if st.button("RESET DRAFT", use_container_width=True):
                         st.session_state.report_wa = ""
                         st.rerun()
+
+# --- AREA SIDEBAR (TARUH DI LUAR LOOP TABS) ---
+with st.sidebar:
+    st.write("##") # Kasih jarak dari logo
+    st.write("---") 
+    
+    # Tombol Logout Paksa
+    logout_klik = st.button("🚪 LOGOUT SEKARANG", use_container_width=True, key="btn_logout_fix")
+    
+    if logout_klik:
+        st.session_state.authenticated = False
+        st.session_state.user = None
+        st.rerun()
