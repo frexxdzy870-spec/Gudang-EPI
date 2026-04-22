@@ -166,29 +166,45 @@ else:
         with tab:
             label = menu[i]
             
-            if label == "MASUK":
-                # KUNCI SINKRONISASI DI SINI
+            elif label == "➕ MASUK":
                 st.subheader("Update Stok / Tambah Barang")
                 
-                # Sediakan daftar barang yang sudah ada
+                # List barang yang sudah ada untuk fitur pencarian
                 list_barang = ["+ TAMBAH BARANG BARU"]
                 if not df_summary.empty:
+                    # Diurutkan abjad biar makin gampang dicarinya
                     list_barang += sorted(df_summary['Barang'].tolist())
                 
-                # Gunakan key pada selectbox agar state-nya terjaga
-                pilihan = st.selectbox("Cari Barang:", list_barang, key="pilih_barang_masuk")
+                # Fitur Search Otomatis ada di sini (tinggal ketik di dalam box)
+                pilihan = st.selectbox(
+                    "Cari Nama Barang (Ketik untuk mencari):", 
+                    list_barang, 
+                    key="search_barang_masuk",
+                    help="Ketik nama barang untuk mempercepat pencarian"
+                )
                 
                 with st.form("form_update_masuk", clear_on_submit=True):
                     if pilihan == "+ TAMBAH BARANG BARU":
                         nm = st.text_input("Nama Barang Baru:").upper().strip()
-                        kt = st.selectbox("Kategori:", ["BAR", "KITCHEN"])
-                        stn = st.selectbox("Satuan:", ["pack", "pcs", "box", "kg"])
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            kt = st.selectbox("Kategori:", ["BAR", "KITCHEN", "STATIONERY", "OTHER"])
+                        with col2:
+                            stn = st.selectbox("Satuan:", ["pack", "pcs", "box", "gram", "kg", "liter"])
                     else:
                         nm = pilihan
                         # Cari data pendukung secara otomatis
                         row = df_summary[df_summary['Barang'] == nm].iloc[0]
                         kt, stn = row['Kategori'], row['Satuan']
-                        st.markdown(f"📦 **{nm}** | Kategori: `{kt}` | Satuan: `{stn}`")
+                        
+                        # Info Ringkas Barang yang dipilih
+                        st.markdown(f"""
+                        <div style="background-color: rgba(0,0,0,0.05); padding: 10px; border-radius: 10px; border-left: 5px solid #000;">
+                            <p style="margin:0; text-align:left;">📦 <b>Barang:</b> {nm}</p>
+                            <p style="margin:0; text-align:left;">🏷️ <b>Kategori:</b> {kt} | 📏 <b>Satuan:</b> {stn}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        st.write("##") # Spasi
                     
                     jml = st.number_input("Jumlah Tambahan:", min_value=1)
                     
@@ -198,10 +214,12 @@ else:
                                 "barang": nm, "kategori": kt, "satuan": stn, 
                                 "jumlah": jml, "jenis": "MASUK", "user_input": st.session_state.user
                             }).execute()
+                            # Update report WA
                             st.session_state.report_wa += f"• {nm}: +{jml} {stn}\n"
                             st.success(f"Berhasil update {nm}!")
                             st.rerun()
-                        else: st.error("Isi nama barangnya!")
+                        else:
+                            st.error("Nama barang tidak boleh kosong!")
 
             elif label == "DATA":
                 st.dataframe(df_summary, use_container_width=True, hide_index=True)
